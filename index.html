@@ -5,28 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CARS Self-Assessment Tool</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .view { display: none; }
-        .view.is-active { display: block; }
-        .calendar-day {
-            min-height: 100px;
-            border: 1px solid #dbdbdb;
-            padding: 5px;
-        }
-        .calendar-day.has-test {
-            background-color: #effaf3;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .calendar-day.has-test:hover {
-            background-color: #d1f3dd;
-        }
-        .day-number {
-            font-size: 0.8em;
-            color: #7a7a7a;
-        }
-    </style>
+    <!-- Inlined style block removed; now using styles.css -->
 </head>
 <body>
 
@@ -143,6 +124,8 @@
     </div>
 
 
+<script src="js/data.js"></script>
+<script src="js/scoring.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 

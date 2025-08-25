@@ -1,0 +1,12 @@
+/* styles.css
+   Custom overrides & future teaching-related visual tweaks.
+*/
+.view { display:none; }
+.view.is-active { display:block; }
+.calendar-day { min-height:100px; border:1px solid #dbdbdb; padding:5px; }
+.calendar-day.has-test { background:#effaf3; cursor:pointer; font-weight:bold; }
+.calendar-day.has-test:hover { background:#d1f3dd; }
+.day-number { font-size:0.8em; color:#7a7a7a; }
+/* Dev Mode panel placeholder */
+#dev-mode-panel { font-size:0.85rem; background:#fafafa; border-top:2px solid #eee; padding:0.75rem; display:none; }
+#dev-mode-panel.active { display:block; }
