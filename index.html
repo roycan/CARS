@@ -1,53 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CARS Self-Assessment Tool</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
+    <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Inlined style block removed; now using styles.css -->
 </head>
 <body>
-
     <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
-            <a class="navbar-item" href="#">
-                <strong>CARS Tracker</strong>
-            </a>
+            <a class="navbar-item" href="#"><strong>CARS Tracker</strong></a>
         </div>
-        <div id="navbarBasicExample" class="navbar-menu">
+        <div class="navbar-menu">
             <div class="navbar-start">
                 <a class="navbar-item" data-view="test">✍️ New Test</a>
                 <a class="navbar-item" data-view="calendar">🗓️ Calendar</a>
                 <a class="navbar-item" data-view="analysis">📊 Analysis</a>
                 <a class="navbar-item" data-view="data">💾 Data Management</a>
             </div>
+            <div class="navbar-end pr-4">
+                <a id="dev-mode-toggle" class="navbar-item has-text-weight-semibold" title="Toggle Dev Mode">Dev Mode</a>
+            </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-
+    <main class="container mt-4">
         <section id="view-test" class="view is-active">
             <h1 class="title">New Assessment</h1>
-            <p class="subtitle">Rate each item based on your experiences in the **past month**.</p>
+            <p class="subtitle">Rate each item based on your experiences in the <strong>past month</strong>.</p>
             <div id="questionnaire-form"></div>
             <button id="submit-test" class="button is-primary is-large mt-4">View My Results</button>
         </section>
-
         <section id="view-calendar" class="view">
             <div class="level">
-                <div class="level-left">
-                    <h1 class="title">History Calendar</h1>
-                </div>
+                <div class="level-left"><h1 class="title">History Calendar</h1></div>
                 <div class="level-right">
                     <button id="prev-month" class="button">◄ Prev</button>
                     <h2 id="calendar-month-year" class="title is-4 mx-4"></h2>
                     <button id="next-month" class="button">Next ►</button>
                 </div>
             </div>
-            <div id="calendar-grid" class="is-grid" style="display: grid; grid-template-columns: repeat(7, 1fr);">
+            <div id="calendar-grid" class="is-grid" style="display:grid;grid-template-columns:repeat(7,1fr);">
                 <div class="has-text-centered has-text-weight-bold p-2">Sun</div>
                 <div class="has-text-centered has-text-weight-bold p-2">Mon</div>
                 <div class="has-text-centered has-text-weight-bold p-2">Tue</div>
@@ -57,55 +52,60 @@
                 <div class="has-text-centered has-text-weight-bold p-2">Sat</div>
             </div>
         </section>
-
         <section id="view-analysis" class="view">
             <h1 class="title">Analysis</h1>
             <div class="columns">
-                <div class="column is-two-thirds">
-                    <div class="box">
-                        <h2 class="subtitle">Trends Over Time (T-Scores)</h2>
-                        <canvas id="trends-chart"></canvas>
-                    </div>
-                </div>
-                <div class="column is-one-third">
-                     <div class="box">
-                        <h2 class="subtitle">Most Recent Test Snapshot</h2>
-                        <canvas id="snapshot-chart"></canvas>
-                    </div>
-                </div>
+                <div class="column is-two-thirds"><div class="box"><h2 class="subtitle">Trends Over Time (T-Scores)</h2><canvas id="trends-chart"></canvas></div></div>
+                <div class="column is-one-third"><div class="box"><h2 class="subtitle">Most Recent Test Snapshot</h2><canvas id="snapshot-chart"></canvas></div></div>
             </div>
         </section>
-
         <section id="view-data" class="view">
             <h1 class="title">Data Management</h1>
-            <div class="box">
-                <h2 class="subtitle">Export Data</h2>
-                <p>Save your assessment history for backup or to show to a counselor.</p>
-                <div class="buttons mt-3">
-                    <button id="export-json" class="button is-info">Export to JSON (Backup)</button>
-                    <button id="export-csv" class="button is-success">Export to CSV (For Counselors)</button>
+            <div class="notification is-light is-info mb-4">
+                <strong>Tip:</strong> Export regularly so you can restore your progress if you clear browser storage.
+            </div>
+            <div class="columns is-multiline">
+                <div class="column is-4">
+                    <div class="box">
+                        <h2 class="subtitle">1. Export</h2>
+                        <p class="is-size-7 mb-2">Keep a backup (JSON) or share with a counselor (CSV).</p>
+                        <div class="buttons is-flex is-flex-direction-column is-align-items-stretch">
+                            <button id="export-json" class="button is-info mb-2">⬇ JSON Backup</button>
+                            <button id="export-csv" class="button is-success">⬇ CSV (Summary)</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-4">
+                    <div class="box">
+                        <h2 class="subtitle">2. Import</h2>
+                        <p class="is-size-7 mb-2">Load a previous JSON backup. This will <strong>replace</strong> current data.</p>
+                        <div class="file has-name is-fullwidth mt-2" id="import-wrapper">
+                            <label class="file-label is-fullwidth">
+                                <input id="import-json-input" class="file-input" type="file" accept="application/json" />
+                                <span class="file-cta">
+                                    <span class="file-icon">📁</span>
+                                    <span class="file-label">Choose JSON…</span>
+                                </span>
+                                <span class="file-name" id="import-file-name">No file selected</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-4">
+                    <div class="box danger-zone">
+                        <h2 class="subtitle has-text-danger">3. Danger Zone</h2>
+                        <p class="is-size-7 mb-2">Erase everything stored in this browser.</p>
+                        <button id="delete-all" class="button is-danger is-fullwidth">🗑 Delete All Data</button>
+                    </div>
                 </div>
             </div>
-            <div class="box">
-                <h2 class="subtitle">Import Data</h2>
-                <p>Load your assessment history from a JSON backup file. This will overwrite any existing data.</p>
-                <div class="file has-name mt-3">
-                    <label class="file-label">
-                        <input id="import-json-input" class="file-input" type="file" name="resume">
-                        <span class="file-cta">
-                            <span class="file-icon">📁</span>
-                            <span class="file-label">Choose a JSON file…</span>
-                        </span>
-                    </label>
-                </div>
+            <div class="box mt-2" id="data-stats">
+                <h2 class="subtitle">Stored Data Summary</h2>
+                <p class="is-size-7">Loading stats…</p>
             </div>
-             <div class="box mt-4">
-                <h2 class="subtitle has-text-danger">Delete All Data</h2>
-                <p>Permanently erase all saved assessment history from this browser.</p>
-                <button id="delete-all" class="button is-danger mt-3">Delete All Data</button>
-            </div>
+            <p class="is-size-7 has-text-grey mt-4"><strong>Privacy:</strong> All data stays only in <em>your browser's</em> local storage. No servers. Clearing your browser storage or using another device will remove it unless you export a backup first.</p>
         </section>
-    </div>
+    </main>
 
     <div id="results-modal" class="modal">
         <div class="modal-background"></div>
@@ -114,427 +114,21 @@
                 <p class="modal-card-title">Assessment Results</p>
                 <button class="delete" aria-label="close"></button>
             </header>
-            <section class="modal-card-body">
-                <div id="modal-content"></div>
-            </section>
-            <footer class="modal-card-foot">
-                <button class="button">Close</button>
-            </footer>
+            <section class="modal-card-body"><div id="modal-content"></div></section>
+            <footer class="modal-card-foot"><button class="button">Close</button></footer>
         </div>
     </div>
 
+    <div id="dev-mode-panel" class="mt-5"><h3 class="title is-6 mb-2">Dev Mode</h3><div id="dev-mode-content" class="content is-size-7">Inactive.</div></div>
 
-<script src="js/data.js"></script>
-<script src="js/scoring.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-
-    // --- CONFIGURATION ---
-    const DB_KEY = 'carsTrackerData';
-
-    const questions = [
-        { q: "1. I complain a lot.", t: "Sobrang akong nagrereklamo." },
-        { q: "2. I feel sad and/or unhappy.", t: "Nalulungkot ako." },
-        { q: "3. I find it difficult to accept defeat.", t: "Hirap ako tumanggap ng pagkatalo." },
-        { q: "4. I am not interested in studying.", t: "Hindi ako interesadong mag-aral." },
-        { q: "5. I disobey adults.", t: "Di ko sinusunod ang mga nakakatanda." },
-        { q: "6. My mood changes easily.", t: "Madaling magbago ang aking mood." },
-        { q: "7. I blame others for my mistakes.", t: "Sinisisi ko ang iba dahil sa aking mga pagkakamali." },
-        { q: "8. I do not participate in class activities.", t: "Ayaw kong sumali sa mga gawain sa klase." },
-        { q: "9. I am noisy.", t: "Maingay ako." },
-        { q: "10. I am easily frustrated or disappointed.", t: "Madali akong mainis o madismaya." },
-        { q: "11. I do not share my things.", t: "Hindi ako nagbibigay o nagbabahagi ng gamit sa iba." },
-        { q: "12. I do not attend classes regularly.", t: "Di ako pumapasok nang regular sa klase." },
-        { q: "13. I have short attention span.", t: "Maikli ang aking atensyon." },
-        { q: "14. I lack self confidence.", t: "Kulang ang kumpyansa ko sa aking sarili." },
-        { q: "15. I find it difficult to maintain friendships.", t: "Nahihirapan akong panatiliin ang aking mga kaibigan." },
-        { q: "16. I find it hard to understand the lessons.", t: "Nahihirapan akong intindihin ang mga aralin." },
-        { q: "17. I am easily distracted.", t: "Madali akong mawala sa focus." },
-        { q: "18. I worry about a lot of things.", t: "Nag-aalala ako sa maraming bagay." },
-        { q: "19. I find it hard to make positive comments.", t: "Nahihirapan akong magbigay ng mga positibong kumento." },
-        { q: "20. I come to school unprepared for the lessons.", t: "Pumapasok ako sa klase na hindi handa para sa mga aralin." },
-        { q: "21. I have trouble concentrating.", t: "Nahihirapan akong mag-concentrate." },
-        { q: "22. I find it hard to relax/calm down.", t: "Nahihirapan akong mag-relax at kumalma." },
-        { q: "23. I refuse others requests for help.", t: "Tumatanggi akong magbigay ng tulong sa mga taong humihingi nito." },
-        { q: "24. I don't finish my class assignment on time.", t: "Hindi ko natatapos ang aking mga seatwork sa nakatakdang oras." },
-        { q: "25. In the past month, I had thoughts of hurting myself.", t: "Sa nakaraang buwan, naisip kong saktan ang sarili ko.", special: true }
-    ];
-
-    const scoringKey = {
-        externalizing: { items: [1, 5, 9, 13, 17, 21] },
-        internalizing: { items: [2, 6, 10, 14, 18, 22] },
-        social: { items: [3, 7, 11, 15, 19, 23] },
-        academic: { items: [4, 8, 12, 16, 20, 24] },
-        total: { items: Array.from({length: 24}, (_, i) => i + 1) }
-    };
-
-    const ratingOptions = [
-        { label: "Never (0)", value: 0 },
-        { label: "Rarely (1)", value: 1 },
-        { label: "Occasionally (2)", value: 2 },
-        { label: "Often (3)", value: 3 },
-        { label: "Almost Always (4)", value: 4 }
-    ];
-    
-    // ** NEW: Official Normative Table Data **
-    const tScoreTable = {
-        externalizing: {0:31,1:34,2:37,3:40,4:42,5:45,6:48,7:51,8:54,9:56,10:59,11:62,12:65,13:68,14:71,15:73,16:76,17:79,18:82,19:85,20:87,21:90,22:93},
-        internalizing: {0:30,1:32,2:34,3:36,4:38,5:40,6:42,7:44,8:46,9:47,10:49,11:51,12:53,13:55,14:57,15:59,16:61,17:63,18:64,19:66,20:68,21:70,22:72},
-        social: {0:36,1:39,2:42,3:45,4:48,5:51,6:54,7:57,8:60,9:63,10:66,11:69,12:72,13:75,14:78,15:81,16:84,17:87,18:90,19:93,20:96,21:99,22:102},
-        academic: {0:35,1:38,2:40,3:43,4:46,5:48,6:51,7:54,8:56,9:59,10:62,11:64,12:67,13:70,14:72,15:75,16:78,17:80,18:83,19:86,20:88,21:91,22:94},
-        total: {0:29,1:29,2:30,3:31,4:32,5:32,6:33,7:34,8:34,9:35,10:36,11:37,12:37,13:38,14:39,15:40,16:40,17:41,18:42,19:43,20:44,21:44,22:45,23:46,24:47,25:48,26:49,27:50,28:51,29:51,30:52,31:53,32:54,33:55,34:55,35:56,36:57,37:58,38:59,39:59,40:60,41:61,42:62,43:62,44:63,45:64,46:65,47:65,48:66,49:67,50:68,51:69,52:69,53:70,54:71,55:72,56:72,57:73,58:74,59:75,60:76,61:76,62:77,63:78,64:79,65:80,66:80,67:81,68:81,69:82,70:83,71:84,72:85,73:86,74:87,75:88,76:88,77:89,78:90,79:90,80:91,81:92,82:93,83:94,84:94,85:95,86:96,87:97,88:98,89:98,90:99,91:100,92:101,93:101,94:102,95:103,96:104}
-    };
-
-    // --- STATE & DATA ---
-    let appData = JSON.parse(localStorage.getItem(DB_KEY)) || [];
-    let trendsChartInstance, snapshotChartInstance;
-    let calendarDate = new Date();
-
-    // --- UI ELEMENTS ---
-    const views = document.querySelectorAll('.view');
-    const navLinks = document.querySelectorAll('.navbar-item[data-view]');
-    const questionnaireForm = document.getElementById('questionnaire-form');
-    const submitBtn = document.getElementById('submit-test');
-    const modal = document.getElementById('results-modal');
-
-    // --- FUNCTIONS ---
-
-    // Data Handling
-    const saveData = () => localStorage.setItem(DB_KEY, JSON.stringify(appData));
-    
-    // View Management
-    const switchView = (viewName) => {
-        views.forEach(v => v.classList.remove('is-active'));
-        document.getElementById(`view-${viewName}`).classList.add('is-active');
-        if (viewName === 'analysis') renderAnalysis();
-        if (viewName === 'calendar') renderCalendar();
-    };
-
-    // Questionnaire Rendering
-    const renderQuestionnaire = () => {
-        let html = '';
-        questions.forEach((item, index) => {
-            html += `<div class="box"><p class="is-size-5">${item.q}</p><p class="is-italic has-text-grey">${item.t}</p><div class="control mt-3">`;
-            if (item.special) {
-                 html += `
-                    <label class="radio"><input type="radio" name="q${index}" value="1"> Yes</label>
-                    <label class="radio"><input type="radio" name="q${index}" value="0" checked> No</label>
-                `;
-            } else {
-                 ratingOptions.forEach(opt => {
-                    html += `<label class="radio"><input type="radio" name="q${index}" value="${opt.value}" ${opt.value === 0 ? 'checked' : ''}> ${opt.label}</label> `;
-                });
-            }
-            html += `</div></div>`;
-        });
-        questionnaireForm.innerHTML = html;
-    };
-
-    // Calculation & Interpretation
-    const calculateResults = () => {
-        const answers = [];
-        const form = document.querySelector('#questionnaire-form');
-        for (let i = 0; i < questions.length; i++) {
-            const value = form.querySelector(`input[name="q${i}"]:checked`).value;
-            answers.push(parseInt(value));
-        }
-
-        const rawScores = {};
-        for (const scale in scoringKey) {
-            rawScores[scale] = scoringKey[scale].items.reduce((sum, itemIndex) => {
-                return sum + answers[itemIndex - 1];
-            }, 0);
-        }
-        
-        // ** UPDATED T-Score Conversion using the Normative Table **
-        const convertRawToTScore = (scale, rawScore) => {
-            const tableForScale = tScoreTable[scale];
-            if (!tableForScale) return null;
-            // Direct hit
-            if (tableForScale[rawScore] !== undefined) return tableForScale[rawScore];
-            // Clamp to nearest defined key (handles raw scores beyond table or missing entries)
-            const keys = Object.keys(tableForScale).map(Number).sort((a,b)=>a-b);
-            if (rawScore <= keys[0]) return tableForScale[keys[0]];
-            if (rawScore >= keys[keys.length-1]) return tableForScale[keys[keys.length-1]];
-            // Find nearest lower key (shouldn't normally happen unless sparse)
-            let lower = keys[0];
-            for (const k of keys) {
-                if (k > rawScore) return tableForScale[lower];
-                lower = k;
-            }
-            return tableForScale[lower];
-        };
-        
-        const tScores = {};
-        for(const scale in scoringKey) {
-            tScores[scale] = convertRawToTScore(scale, rawScores[scale]);
-        }
-
-        // Risk Level Interpretation
-        const totalTScore = tScores.total;
-        let riskLevel, interpretation;
-        if (totalTScore <= 60) {
-            riskLevel = "Normal/No Risk";
-            interpretation = "Learners continue to receive Tier I support.";
-        } else if (totalTScore >= 61 && totalTScore <= 70) {
-            riskLevel = "At-risk";
-            interpretation = "In addition to Tier I support, learner is recommended for Tier II support.";
-        } else {
-            riskLevel = "High risk";
-            interpretation = "In addition to Tier I support, learner is recommended for Tier III support.";
-        }
-        
-        // Item 25 Override
-        const hasSelfHarmThoughts = answers[24] === 1;
-        if (hasSelfHarmThoughts) {
-            riskLevel = "High risk";
-            interpretation = "Immediate high-risk classification due to thoughts of self-harm. In addition to Tier I support, learner is recommended for Tier III support. Please consider speaking with a trusted adult, counselor, or mental health professional.";
-        }
-        
-        return {
-            date: new Date().toISOString(),
-            answers,
-            rawScores,
-            tScores,
-            riskLevel,
-            interpretation,
-            selfHarmOverride: hasSelfHarmThoughts
-        };
-    };
-    
-    // Display
-    const displayResultsInModal = (result) => {
-        const { rawScores, tScores, riskLevel, interpretation, selfHarmOverride, date } = result;
-        const formattedDate = new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        
-        let riskColor = "has-text-success";
-        if (riskLevel === "At-risk") riskColor = "has-text-warning";
-        if (riskLevel === "High risk") riskColor = "has-text-danger";
-
-        const content = `
-            <p class="is-size-4"><strong>Date:</strong> ${formattedDate}</p>
-            <p class="is-size-3 has-text-weight-bold ${riskColor}">Overall Risk Level: ${riskLevel}</p>
-            ${selfHarmOverride ? '<p class="has-text-danger-dark has-text-weight-bold">This result was automatically set to High Risk due to the answer on item #25.</p>' : ''}
-            <p class="is-size-5 mt-2"><em>${interpretation}</em></p>
-            <hr>
-            <h4 class="title is-4">Score Summary</h4>
-            <table class="table is-fullwidth is-striped">
-                <thead>
-                    <tr><th>Subscale</th><th>Raw Score</th><th>T-Score</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td>Externalizing</td><td>${rawScores.externalizing}</td><td>${tScores.externalizing}</td></tr>
-                    <tr><td>Internalizing</td><td>${rawScores.internalizing}</td><td>${tScores.internalizing}</td></tr>
-                    <tr><td>Social</td><td>${rawScores.social}</td><td>${tScores.social}</td></tr>
-                    <tr><td>Academic/Learning</td><td>${rawScores.academic}</td><td>${tScores.academic}</td></tr>
-                    <tr class="has-text-weight-bold"><td>Total</td><td>${rawScores.total}</td><td>${tScores.total}</td></tr>
-                </tbody>
-            </table>
-             <p class="is-size-7 has-text-grey mt-4"><strong>Disclaimer:</strong> This tool is for personal tracking and awareness, based on the CARS 9th-12th Grade Learner Report norms. It is not a substitute for a professional diagnosis. If you are in distress, please contact a mental health professional.</p>
-        `;
-        document.getElementById('modal-content').innerHTML = content;
-        modal.classList.add('is-active');
-    };
-
-    // Calendar
-    const renderCalendar = () => {
-        const grid = document.getElementById('calendar-grid');
-        while (grid.children.length > 7) {
-            grid.removeChild(grid.lastChild);
-        }
-        
-        calendarDate.setDate(1);
-        const month = calendarDate.getMonth();
-        const year = calendarDate.getFullYear();
-        document.getElementById('calendar-month-year').textContent = `${calendarDate.toLocaleString('default', { month: 'long' })} ${year}`;
-        
-        const firstDayIndex = calendarDate.getDay();
-        const lastDay = new Date(year, month + 1, 0).getDate();
-
-        for (let i = 0; i < firstDayIndex; i++) {
-            grid.insertAdjacentHTML('beforeend', `<div class="calendar-day"></div>`);
-        }
-
-        for (let day = 1; day <= lastDay; day++) {
-            const dayCell = document.createElement('div');
-            dayCell.classList.add('calendar-day');
-            dayCell.innerHTML = `<span class="day-number">${day}</span>`;
-            
-            const currentDateStr = new Date(year, month, day).toISOString().split('T')[0];
-            const testOnThisDay = appData.find(d => d.date.startsWith(currentDateStr));
-
-            if (testOnThisDay) {
-                dayCell.classList.add('has-test');
-                dayCell.addEventListener('click', () => displayResultsInModal(testOnThisDay));
-            }
-            grid.appendChild(dayCell);
-        }
-    };
-    
-    // Analysis
-    const renderAnalysis = () => {
-        const analysisView = document.getElementById('view-analysis');
-        if (!appData || appData.length === 0) {
-            analysisView.innerHTML = '<div class="notification is-warning">No data available to analyze. Please complete at least one test.</div>';
-            return;
-        }
-        // Restore original content if it was replaced by the warning
-        if (!document.getElementById('trends-chart')) {
-            analysisView.innerHTML = `<h1 class="title">Analysis</h1>
-            <div class="columns">
-                <div class="column is-two-thirds"><div class="box"><h2 class="subtitle">Trends Over Time (T-Scores)</h2><canvas id="trends-chart"></canvas></div></div>
-                <div class="column is-one-third"><div class="box"><h2 class="subtitle">Most Recent Test Snapshot</h2><canvas id="snapshot-chart"></canvas></div></div>
-            </div>`;
-        }
-
-
-        const sortedData = [...appData].sort((a, b) => new Date(a.date) - new Date(b.date));
-        
-        const labels = sortedData.map(d => new Date(d.date).toLocaleDateString());
-        const externalizingData = sortedData.map(d => d.tScores.externalizing);
-        const internalizingData = sortedData.map(d => d.tScores.internalizing);
-        const socialData = sortedData.map(d => d.tScores.social);
-        const academicData = sortedData.map(d => d.tScores.academic);
-        const totalData = sortedData.map(d => d.tScores.total);
-        
-        const trendsCtx = document.getElementById('trends-chart').getContext('2d');
-        if (trendsChartInstance) trendsChartInstance.destroy();
-        trendsChartInstance = new Chart(trendsCtx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    { label: 'Externalizing', data: externalizingData, borderColor: 'rgba(255, 99, 132, 1)', fill: false },
-                    { label: 'Internalizing', data: internalizingData, borderColor: 'rgba(54, 162, 235, 1)', fill: false },
-                    { label: 'Social', data: socialData, borderColor: 'rgba(255, 206, 86, 1)', fill: false },
-                    { label: 'Academic', data: academicData, borderColor: 'rgba(75, 192, 192, 1)', fill: false },
-                    { label: 'Total', data: totalData, borderColor: 'rgba(153, 102, 255, 1)', fill: false, borderWidth: 3 }
-                ]
-            }
-        });
-
-        const lastTest = sortedData[sortedData.length - 1];
-        const snapshotCtx = document.getElementById('snapshot-chart').getContext('2d');
-        if(snapshotChartInstance) snapshotChartInstance.destroy();
-        snapshotChartInstance = new Chart(snapshotCtx, {
-            type: 'radar',
-            data: {
-                labels: ['Externalizing', 'Internalizing', 'Social', 'Academic'],
-                datasets: [{
-                    label: 'Most Recent T-Scores',
-                    data: [lastTest.tScores.externalizing, lastTest.tScores.internalizing, lastTest.tScores.social, lastTest.tScores.academic],
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scale: {
-                    min: 30,
-                    max: 100
-                }
-            }
-        });
-    };
-
-    // Data IO
-    const exportJSON = () => {
-        if (appData.length === 0) return alert('No data to export.');
-        const dataStr = JSON.stringify(appData, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(dataBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `cars_backup_${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-        URL.revokeObjectURL(url);
-    };
-
-    const exportCSV = () => {
-        if (appData.length === 0) return alert('No data to export.');
-        let csvContent = "data:text/csv;charset=utf-8,";
-        const headers = ['Date', 'Risk Level', 'Self Harm Override', 'Externalizing Raw', 'Externalizing T', 'Internalizing Raw', 'Internalizing T', 'Social Raw', 'Social T', 'Academic Raw', 'Academic T', 'Total Raw', 'Total T'];
-        csvContent += headers.join(',') + '\r\n';
-        appData.forEach(res => {
-            const row = [
-                new Date(res.date).toISOString(), `"${res.riskLevel}"`, res.selfHarmOverride,
-                res.rawScores.externalizing, res.tScores.externalizing,
-                res.rawScores.internalizing, res.tScores.internalizing,
-                res.rawScores.social, res.tScores.social,
-                res.rawScores.academic, res.tScores.academic,
-                res.rawScores.total, res.tScores.total
-            ];
-            csvContent += row.join(',') + '\r\n';
-        });
-        const link = document.createElement('a');
-        link.setAttribute('href', encodeURI(csvContent));
-        link.setAttribute('download', `cars_export_${new Date().toISOString().split('T')[0]}.csv`);
-        link.click();
-    };
-
-    const importJSON = (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const importedData = JSON.parse(e.target.result);
-                if (Array.isArray(importedData)) {
-                     if (confirm('Are you sure you want to import this file? It will overwrite all current data.')) {
-                        appData = importedData;
-                        saveData();
-                        alert('Data imported successfully!');
-                        switchView('calendar'); 
-                    }
-                } else { throw new Error('Invalid data format'); }
-            } catch (error) {
-                alert('Error importing file. Please make sure it is a valid JSON backup from this tool.');
-            }
-        };
-        reader.readAsText(file);
-    };
-    
-    const deleteAllData = () => {
-        if (confirm('Are you absolutely sure? This will delete all your data permanently and cannot be undone.')) {
-            appData = [];
-            saveData();
-            alert('All data has been deleted.');
-            location.reload();
-        }
-    };
-
-
-    // --- EVENT LISTENERS ---
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => switchView(e.target.dataset.view));
-    });
-    submitBtn.addEventListener('click', () => {
-        const results = calculateResults();
-        appData.push(results);
-        saveData();
-        displayResultsInModal(results);
-        renderQuestionnaire();
-    });
-    modal.querySelector('.modal-background').addEventListener('click', () => modal.classList.remove('is-active'));
-    modal.querySelector('.delete').addEventListener('click', () => modal.classList.remove('is-active'));
-    modal.querySelector('.modal-card-foot button').addEventListener('click', () => modal.classList.remove('is-active'));
-    document.getElementById('prev-month').addEventListener('click', () => {
-        calendarDate.setMonth(calendarDate.getMonth() - 1);
-        renderCalendar();
-    });
-    document.getElementById('next-month').addEventListener('click', () => {
-        calendarDate.setMonth(calendarDate.getMonth() + 1);
-        renderCalendar();
-    });
-    document.getElementById('export-json').addEventListener('click', exportJSON);
-    document.getElementById('export-csv').addEventListener('click', exportCSV);
-    document.getElementById('import-json-input').addEventListener('change', importJSON);
-    document.getElementById('delete-all').addEventListener('click', deleteAllData);
-
-    // --- INITIALIZATION ---
-    renderQuestionnaire();
-    switchView('test');
-});
-</script>
+    <script src="js/data.js"></script>
+    <script src="js/scoring.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/ui_questionnaire.js"></script>
+    <script src="js/ui_modal.js"></script>
+    <script src="js/ui_calendar.js"></script>
+    <script src="js/ui_analysis.js"></script>
+    <script src="js/devmode.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
