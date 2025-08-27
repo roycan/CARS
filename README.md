@@ -90,7 +90,7 @@ Full logic: `SCORING_AND_RISK.md`.
 ## Roadmap (Post‑Beta Highlights)
 - Accessibility documentation & incremental improvements
 - Dev Mode enhancements (section expansion, copy features)
-- Automated unit & integration tests
+- Automated unit & integration tests (Unit tests in progress)
 - Optional color bands / legend on charts
 - LocalStorage schema migration helpers
 - Print-friendly results view
@@ -114,3 +114,8 @@ Internal maintainers only during beta; external pull requests are not accepted a
 - `CHANGELOG.md`
 
 (Additional teaching and governance documents may be added after beta.)
+
+## Running Tests
+This project uses QUnit for buildless, in-browser testing.
+1.  Open the `tests/test-runner.html` file in your web browser.
+2.  The page will display the test results for the application's scoring logic.
