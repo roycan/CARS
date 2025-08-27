@@ -1,0 +1,17 @@
+%% Core assessment processing flow
+flowchart TD
+  A[Start Assessment\nUser answers items] --> B[collectAnswers]
+  B --> C[computeRawScores]
+  C --> D[convertAllToTScores]
+  D --> E[determineRisk]
+  E --> F[buildResult]
+  F --> G[Persist to localStorage]
+  F --> H[Display Modal]
+  G --> I[Calendar View]
+  G --> J[Analysis Charts]
+  subgraph DevMode[Dev Mode Panel]
+    C -.-> DM1[Raw Scores]
+    D -.-> DM2[T-score Mapping]
+    E -.-> DM3[Risk Logic]
+  end
+  style DevMode fill:#fafafa,stroke:#bbb,stroke-dasharray: 5 5
