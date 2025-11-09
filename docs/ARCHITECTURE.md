@@ -105,3 +105,54 @@ Provides pedagogical transparency: shows counts, latest result breakdown, storag
 - Introduce a lightweight test suite for `scoring.js` functions
 - Add versioned migrations
 - Provide optional risk band overlays on charts
+
+---
+
+## SSR Implementation (Teacher Reference)
+
+The following diagrams provide intermediate-level views of the SSR (Server-Side Rendering) version's architecture, useful for teacher preparation and advanced student discussions.
+
+### Authentication Flow (Intermediate)
+
+Figure: Authentication & Session Management
+![Sequence diagram showing login form submission, bcrypt verification, session creation, cookie setting, and protected route access](diagrams/auth/auth--plantuml--intermediate.png)
+
+Alt: User submits login credentials via POST; the Express server verifies the password with bcrypt, creates a session object, sets a session cookie in the response, and redirects to the dashboard. On subsequent requests, the cookie is sent, the session is read, and the counselor identity is validated before granting access to protected routes.
+
+**Key Teaching Points:**
+- Sessions act as temporary identity badges stored server-side.
+- Cookies carry the session ID back and forth between browser and server.
+- Bcrypt hashing is one-way: passwords are never stored in plain text.
+- Middleware (authGuard) checks session validity on each protected route.
+
+### Debugging Strategy (Intermediate)
+
+Figure: Debugging Decision Tree
+![Flowchart showing systematic troubleshooting steps for common errors in development and deployment](diagrams/debug/debug--plantuml--intermediate.png)
+
+Alt: When an error occurs, students follow a systematic process: first check if it's a missing package error (run npm install), then a port-in-use error (stop other servers or change port), then SQL syntax or schema issues (use DB Browser for SQLite), then authentication 401 errors (re-login or check session), and finally consult server logs and console.log() output to isolate the problem. After each fix, retry the operation.
+
+**Key Teaching Points:**
+- Debugging is methodical, not random trial-and-error.
+- Read error messages carefully—they usually tell you exactly what's wrong.
+- Use tools: DB Browser for SQL, browser DevTools Network tab, server terminal logs.
+- The "15-minute rule": try to debug for 15 minutes independently, then ask for help.
+- console.log() is a powerful diagnostic tool; place it strategically to trace execution flow.
+
+---
+
+## SSR vs. Client-Side Architecture Comparison
+
+| Aspect | Client-Side (Original CARS) | SSR (CARS SSR) |
+|--------|----------------------------|----------------|
+| **Rendering** | Browser generates HTML via JS | Server generates HTML via EJS |
+| **Data Storage** | localStorage only | SQLite database + sessions |
+| **Authentication** | None (client-side only) | Server-side with bcrypt + sessions |
+| **Deployment** | Static file hosting | Node.js runtime required |
+| **Privacy** | Data stays in browser | Data stored on server |
+| **Scalability** | Each user isolated | Centralized data access |
+| **Learning Curve** | Lower (just HTML/CSS/JS) | Higher (backend concepts) |
+| **Use Case** | Individual self-assessment | School counselor dashboard |
+
+**Pedagogical Value:** By comparing both architectures, students understand the trade-offs between client-side and server-side approaches, and when to choose each pattern.
+

@@ -1,0 +1,61 @@
+<nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="/">
+      <strong>🎓 <%= appName %></strong>
+    </a>
+    
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMenu">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div id="navbarMenu" class="navbar-menu">
+    <div class="navbar-start">
+      <a class="navbar-item" href="/">
+        Home
+      </a>
+      <a class="navbar-item" href="/about">
+        About
+      </a>
+      <a class="navbar-item" href="/assessment/new">
+        Take Assessment
+      </a>
+    </div>
+
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <div class="buttons">
+          <% if (counselor) { %>
+            <a class="button is-light" href="/counselor/dashboard">
+              <strong>Dashboard</strong>
+            </a>
+            <a class="button is-light" href="/counselor/logout">
+              Logout
+            </a>
+          <% } else { %>
+            <a class="button is-light" href="/counselor/login">
+              Counselor Login
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<script>
+  // Toggle mobile menu
+  document.addEventListener('DOMContentLoaded', () => {
+    const burger = document.querySelector('.navbar-burger');
+    const menu = document.getElementById('navbarMenu');
+    
+    if (burger) {
+      burger.addEventListener('click', () => {
+        burger.classList.toggle('is-active');
+        menu.classList.toggle('is-active');
+      });
+    }
+  });
+</script>

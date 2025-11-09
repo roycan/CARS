@@ -1,0 +1,153 @@
+<h1 class="title">Counselor Dashboard</h1>
+<p class="subtitle">Welcome, <%= counselor.username %>!</p>
+
+<!-- Statistics Overview -->
+<div class="columns is-multiline">
+  <div class="column is-3">
+    <div class="box has-text-centered">
+      <p class="heading">Total Students</p>
+      <p class="title is-3"><%= stats.totalStudents %></p>
+    </div>
+  </div>
+  <div class="column is-3">
+    <div class="box has-text-centered has-background-success-light">
+      <p class="heading">Normal/No Risk</p>
+      <p class="title is-3"><%= stats.normalCount %></p>
+    </div>
+  </div>
+  <div class="column is-3">
+    <div class="box has-text-centered has-background-warning-light">
+      <p class="heading">At-Risk</p>
+      <p class="title is-3"><%= stats.atRiskCount %></p>
+    </div>
+  </div>
+  <div class="column is-3">
+    <div class="box has-text-centered has-background-danger-light">
+      <p class="heading">High Risk</p>
+      <p class="title is-3"><%= stats.highRiskCount %></p>
+    </div>
+  </div>
+</div>
+
+<% if (stats.selfHarmCount > 0) { %>
+  <div class="notification is-danger">
+    <strong>⚠️ Alert:</strong> <%= stats.selfHarmCount %> student(s) have indicated thoughts of self-harm. 
+    Please review these cases immediately.
+  </div>
+<% } %>
+
+<!-- Filters -->
+<div class="box">
+  <form action="/counselor/dashboard" method="GET" class="columns is-multiline">
+    <div class="column is-3">
+      <div class="field">
+        <label class="label">Section</label>
+        <div class="control">
+          <div class="select is-fullwidth">
+            <select name="section">
+              <option value="">All Sections</option>
+              <% sections.forEach(section => { %>
+                <option value="<%= section %>" <%= filters.section === section ? 'selected' : '' %>>
+                  <%= section %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="column is-3">
+      <div class="field">
+        <label class="label">Batch</label>
+        <div class="control">
+          <div class="select is-fullwidth">
+            <select name="batch">
+              <option value="">All Batches</option>
+              <% batches.forEach(batch => { %>
+                <option value="<%= batch %>" <%= filters.batch === batch ? 'selected' : '' %>>
+                  <%= batch %>
+                </option>
+              <% }); %>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="column is-3">
+      <div class="field">
+        <label class="label">Risk Level</label>
+        <div class="control">
+          <div class="select is-fullwidth">
+            <select name="riskLevel">
+              <option value="">All Levels</option>
+              <option value="Normal/No Risk" <%= filters.riskLevel === 'Normal/No Risk' ? 'selected' : '' %>>Normal/No Risk</option>
+              <option value="At-risk" <%= filters.riskLevel === 'At-risk' ? 'selected' : '' %>>At-risk</option>
+              <option value="High risk" <%= filters.riskLevel === 'High risk' ? 'selected' : '' %>>High risk</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="column is-3">
+      <div class="field">
+        <label class="label">&nbsp;</label>
+        <div class="control">
+          <button type="submit" class="button is-primary is-fullwidth">Apply Filters</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Student List -->
+<div class="box">
+  <h2 class="title is-4">Recent Assessments (<%= students.length %>)</h2>
+  
+  <% if (students.length === 0) { %>
+    <div class="notification is-light">
+      No assessments found matching the selected filters.
+    </div>
+  <% } else { %>
+    <div class="table-container">
+      <table class="table is-fullwidth is-striped is-hoverable">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Section</th>
+            <th>Batch</th>
+            <th>Risk Level</th>
+            <th>T-Score</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% students.forEach(s => { %>
+            <tr>
+              <td>
+                <%= s.name %>
+                <% if (s.self_harm_flagged) { %>
+                  <span class="tag is-danger is-light">⚠️ Self-harm</span>
+                <% } %>
+              </td>
+              <td><%= s.section %></td>
+              <td><%= s.batch %></td>
+              <td>
+                <span class="risk-badge risk-<%= s.risk_level === 'High risk' ? 'high' : s.risk_level === 'At-risk' ? 'at-risk' : 'normal' %>">
+                  <%= s.risk_level %>
+                </span>
+              </td>
+              <td><%= s.t_scores ? JSON.parse(s.t_scores).total : 'N/A' %></td>
+              <td><%= s.taken_at ? new Date(s.taken_at).toLocaleDateString() : 'N/A' %></td>
+              <td>
+                <a href="/counselor/student/<%= s.id %>" class="button is-small is-info">
+                  View Details
+                </a>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

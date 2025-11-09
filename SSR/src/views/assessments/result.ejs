@@ -1,0 +1,129 @@
+<div class="hero <%= result.riskLevel === 'High risk' ? 'is-danger' : result.riskLevel === 'At-risk' ? 'is-warning' : 'is-success' %>">
+  <div class="hero-body">
+    <div class="container has-text-centered">
+      <h1 class="title is-1">Assessment Complete!</h1>
+      <h2 class="subtitle is-3">
+        Your Result: <strong><%= result.riskLevel %></strong>
+      </h2>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="columns">
+      <div class="column is-8 is-offset-2">
+        
+        <!-- Student Info -->
+        <div class="box">
+          <h2 class="title is-4">Student Information</h2>
+          <p><strong>Name:</strong> <%= student.name %></p>
+          <p><strong>Email:</strong> <%= student.email %></p>
+          <p><strong>Section:</strong> <%= student.section %></p>
+          <p><strong>Batch:</strong> <%= student.batch %></p>
+          <% if (student.school) { %>
+            <p><strong>School:</strong> <%= student.school %></p>
+          <% } %>
+          <p><strong>Assessment Date:</strong> <%= new Date(result.calculatedAt).toLocaleString() %></p>
+        </div>
+
+        <!-- Interpretation -->
+        <div class="box">
+          <h2 class="title is-4">Interpretation</h2>
+          <div class="content">
+            <p class="is-size-5"><%= result.interpretation %></p>
+            
+            <% if (result.selfHarmFlagged) { %>
+              <div class="message is-danger">
+                <div class="message-body">
+                  <p><strong>⚠️ Important Notice:</strong></p>
+                  <p>
+                    You indicated having thoughts of self-harm. Please know that you are not alone, 
+                    and help is available. We strongly encourage you to:
+                  </p>
+                  <ul>
+                    <li>Speak with a school counselor as soon as possible</li>
+                    <li>Talk to a trusted adult (parent, teacher, family member)</li>
+                    <li>Contact a mental health professional or crisis hotline</li>
+                  </ul>
+                  <p>
+                    <strong>Emergency Hotlines (Philippines):</strong><br>
+                    National Center for Mental Health: (02) 7989-8727<br>
+                    In Touch Crisis Line: (02) 8893-7603
+                  </p>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Score Details -->
+        <div class="box">
+          <h2 class="title is-4">Your Scores</h2>
+          <div class="content">
+            <p class="subtitle is-6">T-Scores by Subscale</p>
+            
+            <div class="columns is-multiline">
+              <% scales.forEach(scale => { %>
+                <div class="column is-6">
+                  <div class="notification is-light">
+                    <p class="heading"><%= scale.label %></p>
+                    <p class="title is-4"><%= result.tScores[scale.key] %></p>
+                    <p class="help">Raw Score: <%= result.rawScores[scale.key] %></p>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+
+            <div class="notification <%= result.tScores.total > 70 ? 'is-danger' : result.tScores.total > 60 ? 'is-warning' : 'is-success' %>">
+              <p class="heading">Total T-Score</p>
+              <p class="title is-2"><%= result.tScores.total %></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="box">
+          <h2 class="title is-4">What Happens Next?</h2>
+          <div class="content">
+            <p>
+              Your results have been saved and shared with your school counselor. They may:
+            </p>
+            <ul>
+              <li>Schedule a follow-up meeting to discuss your results</li>
+              <li>Provide resources and support strategies</li>
+              <li>Coordinate with teachers if needed for academic support</li>
+              <li>Connect you with additional services if appropriate</li>
+            </ul>
+            <p>
+              <strong>Remember:</strong> This assessment is just one tool. Your counselor will 
+              consider your complete situation and work with you to identify the best support.
+            </p>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="field is-grouped is-grouped-centered mt-5">
+          <div class="control">
+            <a href="/" class="button is-primary is-large">
+              <strong>Return to Home</strong>
+            </a>
+          </div>
+        </div>
+
+        <div class="has-text-centered mt-4">
+          <p class="is-size-7 has-text-grey">
+            Assessment ID: <%= assessment.id %> | 
+            Your counselor can reference this ID when discussing your results.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Clear localStorage draft after successful submission
+  localStorage.removeItem('cars_assessment_draft');
+</script>

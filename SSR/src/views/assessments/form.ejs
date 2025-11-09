@@ -1,0 +1,101 @@
+<h1 class="title">Assessment Questionnaire</h1>
+<p class="subtitle">
+  Rate each item based on your experiences in the <strong>past month</strong>. 
+  There are no right or wrong answers—please be honest.
+</p>
+
+<div class="notification is-info is-light">
+  <strong>Student:</strong> <%= student.name %> (<%= student.section %> - <%= student.batch %>)
+</div>
+
+<form action="/assessment/submit" method="POST" id="assessment-form">
+  <input type="hidden" name="student_id" value="<%= student.id %>">
+
+  <% questions.forEach((q, index) => { %>
+    <div class="box question-card">
+      <div class="bilingual-text">
+        <div class="english"><%= q.en %></div>
+        <div class="filipino"><%= q.tl %></div>
+      </div>
+
+      <% if (q.special) { %>
+        <!-- Question 25: Self-harm (Yes/No) -->
+        <div class="control">
+          <% selfHarmOptions.forEach(option => { %>
+            <label class="radio">
+              <input 
+                type="radio" 
+                name="q<%= index %>" 
+                value="<%= option.value %>"
+                <%= option.value === 0 ? 'checked' : '' %>
+                required
+              >
+              <%= option.label %>
+            </label>
+            <br>
+          <% }); %>
+        </div>
+        
+        <% if (index === 24) { %>
+          <div class="message is-danger mt-3">
+            <div class="message-body">
+              <strong>Important:</strong> If you answered "Yes" to this question, please consider 
+              speaking with a trusted adult, school counselor, or mental health professional. 
+              You are not alone, and help is available.
+            </div>
+          </div>
+        <% } %>
+      <% } else { %>
+        <!-- Questions 1-24: Rating scale -->
+        <div class="control">
+          <% ratingOptions.forEach(option => { %>
+            <label class="radio">
+              <input 
+                type="radio" 
+                name="q<%= index %>" 
+                value="<%= option.value %>"
+                <%= option.value === 0 ? 'checked' : '' %>
+                required
+              >
+              <%= option.label %>
+            </label>
+            <br>
+          <% }); %>
+        </div>
+      <% } %>
+    </div>
+  <% }); %>
+
+  <div class="box has-background-light">
+    <div class="field is-grouped is-grouped-centered">
+      <div class="control">
+        <button type="submit" class="button is-primary is-large">
+          <strong>Submit Assessment</strong>
+        </button>
+      </div>
+    </div>
+    <p class="has-text-centered mt-3">
+      <small>Please review your answers before submitting. You can change any answer before submitting.</small>
+    </p>
+  </div>
+</form>
+
+<script>
+  // Optional: Save to localStorage for recovery (Phase 8 feature - basic version)
+  document.getElementById('assessment-form').addEventListener('change', function() {
+    const formData = new FormData(this);
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+      data[key] = value;
+    }
+    localStorage.setItem('cars_assessment_draft', JSON.stringify(data));
+  });
+
+  // Confirmation before submit
+  document.getElementById('assessment-form').addEventListener('submit', function(e) {
+    const confirmed = confirm('Are you ready to submit your assessment? You cannot change your answers after submission.');
+    if (!confirmed) {
+      e.preventDefault();
+    }
+  });
+</script>
