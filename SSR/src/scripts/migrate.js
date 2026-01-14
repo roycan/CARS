@@ -1,35 +1,39 @@
-/**
- * scripts/migrate.js
- * Database migration script
- * Run this to set up the database schema
- * 
- * Usage: npm run migrate
- */
-
+const fs = require('fs');
 const path = require('path');
-const { initDatabase, runMigration } = require('../db/connection');
+const pool = require('../db/connection');
 
-async function migrate() {
-  console.log('🚀 Starting database migration...\n');
+async function runMigrations() {
+  const client = await pool.connect();
   
   try {
-    // Initialize database connection
-    initDatabase();
+    console.log('Starting database migrations...');
     
-    // Run schema migration
-    const schemaPath = path.join(__dirname, '../db/schema.sql');
-    runMigration(schemaPath);
+    const schemaDir = path.join(__dirname, '../db/schema');
+    const schemaFiles = [
+      'students.sql',
+      'counselors.sql', 
+      'assessments.sql',
+      'counselor_access_log.sql'
+    ];
     
-    console.log('\n✅ Migration completed successfully!');
-    console.log('📝 Database schema is now up to date.\n');
+    for (const file of schemaFiles) {
+      const filePath = path.join(schemaDir, file);
+      const sql = fs.readFileSync(filePath, 'utf8');
+      
+      console.log(`Running migration: ${file}`);
+      await client.query(sql);
+      console.log(`✓ ${file} completed`);
+    }
     
-    process.exit(0);
+    console.log('All migrations completed successfully!');
+    
   } catch (error) {
-    console.error('\n❌ Migration failed:', error.message);
-    console.error(error);
+    console.error('Migration failed:', error);
     process.exit(1);
+  } finally {
+    client.release();
+    await pool.end();
   }
 }
 
-// Run migration
-migrate();
+runMigrations();

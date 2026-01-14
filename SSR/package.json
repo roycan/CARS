@@ -10,25 +10,32 @@
     "seed": "node src/scripts/seed.js",
     "test": "jest"
   },
-  "keywords": ["education", "assessment", "express", "ejs", "sqlite"],
+  "keywords": [
+    "education",
+    "assessment",
+    "express",
+    "ejs",
+    "sqlite"
+  ],
   "author": "Teacher Roy",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "ejs": "^3.1.9",
-    "better-sqlite3": "^9.2.2",
     "bcrypt": "^5.1.1",
-    "express-session": "^1.17.3",
-    "dotenv": "^16.3.1",
     "compression": "^1.7.4",
-    "helmet": "^7.1.0",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-ejs-layouts": "^2.5.1",
     "express-rate-limit": "^7.1.5",
-    "express-validator": "^7.0.1"
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "iron-session": "^8.0.1",
+    "pg": "^8.11.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   }
 }

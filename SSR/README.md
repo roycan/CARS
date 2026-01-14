@@ -11,6 +11,7 @@
 This is the server-side rendering version of the CARS (Children and Adolescents Risk Screener) assessment tool. It's designed as a teaching project for high school students to learn full-stack web development fundamentals.
 
 **Key Features:**
+
 - ✅ Student assessment intake with 25 bilingual questions
 - ✅ Automatic risk scoring and classification
 - ✅ Counselor dashboard with authentication
@@ -51,11 +52,12 @@ npm run seed
 npm run dev
 ```
 
-The application will be available at **http://localhost:3000**
+The application will be available at **<http://localhost:3000>**
 
 ### Default Credentials
 
 **Counselor Login:**
+
 - Username: `counselor`
 - Password: `changeme123`
 
@@ -125,65 +127,77 @@ SSR/
 This project is designed to teach web development in phases:
 
 ### Phase 1-2: Server & Templates (Weeks 1-3)
+
 - Understanding Node.js and Express
 - Creating routes and handling requests
 - Using EJS templates for dynamic HTML
 - Serving static files
 
 **Files to study:**
+
 - `src/server.js` - Main application setup
 - `src/routes/index.js` - Basic routing
 - `src/views/pages/home.ejs` - Template syntax
 
 ### Phase 3: Forms & Validation (Week 4)
+
 - HTML form handling
 - POST vs GET requests
 - Input validation
 - Error handling
 
 **Files to study:**
+
 - `src/routes/students.js` - Form processing
 - `src/middleware/validation.js` - Validation logic
 - `src/views/students/new.ejs` - Form structure
 
 ### Phase 4: Business Logic (Week 5)
+
 - Separating concerns (models, services, routes)
 - Pure functions and testing
 - Data transformation
 
 **Files to study:**
+
 - `src/services/scoring.js` - Scoring algorithms
 - `src/routes/assessments.js` - Assessment flow
 
 ### Phase 5: Database (Weeks 6-7)
+
 - SQLite basics
 - SQL queries (INSERT, SELECT, JOIN)
 - Database design principles
 - Prepared statements
 
 **Files to study:**
+
 - `src/db/schema.sql` - Database structure
 - `src/models/student.js` - Data access patterns
 - `src/models/assessment.js` - Complex queries
 
 ### Phase 6: Authentication (Weeks 8-9)
+
 - Password hashing with bcrypt
 - Session management
 - Route protection middleware
 - Security best practices
 
 **Files to study:**
+
 - `src/services/auth.js` - Password handling
 - `src/middleware/authGuard.js` - Route protection
 - `src/routes/counselor.js` - Login flow
 
 ### Phase 7: Dashboard & Analytics (Week 10)
+
 - Data aggregation
 - Filtering and sorting
 - User interface design
 - Access logging
 
 **Files to study:**
+
 - `src/models/assessment.js` - Statistics functions
 - `src/views/counselor/dashboard.ejs` - Dashboard UI
 
@@ -209,12 +223,14 @@ npm test            # Run tests (not yet implemented)
 ## 🌐 Deployment to Railway
 
 ### Prerequisites
+
 1. Create a [Railway account](https://railway.app/) (free tier)
 2. Install [Railway CLI](https://docs.railway.app/develop/cli) (optional)
 
 ### Method 1: GitHub Integration (Recommended)
 
 1. Push your code to GitHub:
+
    ```bash
    git init
    git add .
@@ -230,6 +246,7 @@ npm test            # Run tests (not yet implemented)
    - Railway will automatically detect `railway.json` and deploy
 
 3. Set environment variables in Railway dashboard:
+
    ```
    NODE_ENV=production
    SESSION_SECRET=<generate-random-secret>
@@ -263,9 +280,11 @@ railway open
 1. Access your app URL
 2. The database will be created automatically on first run
 3. Run seed script (one-time):
+
    ```bash
    railway run npm run seed
    ```
+
 4. Login with your counselor credentials
 5. Change the default password immediately!
 
@@ -311,16 +330,19 @@ RATE_LIMIT_MAX_REQUESTS=100
 Edit the `.env` file:
 
 **Sections:** Comma-separated list of class sections
+
 ```env
 SCHOOL_SECTIONS=Grade 9-A,Grade 9-B,Grade 9-C,Grade 9-D,Grade 10-A,Grade 10-B
 ```
 
 **Batches:** Comma-separated list of graduation years
+
 ```env
 SCHOOL_BATCHES=2024,2025,2026,2027,2028
 ```
 
 **Schools:** Comma-separated list of school names (optional for students)
+
 ```env
 SCHOOL_NAMES=My High School,Another High School,Third School
 ```
@@ -332,6 +354,7 @@ SCHOOL_NAMES=My High School,Another High School,Third School
 ### Tables
 
 **students**
+
 - `id` - Primary key
 - `name` - Student full name
 - `email` - Student email
@@ -341,6 +364,7 @@ SCHOOL_NAMES=My High School,Another High School,Third School
 - `created_at`, `updated_at` - Timestamps
 
 **assessments**
+
 - `id` - Primary key
 - `student_id` - Foreign key to students
 - `raw_answers` - JSON array of answers
@@ -352,12 +376,14 @@ SCHOOL_NAMES=My High School,Another High School,Third School
 - `taken_at` - Timestamp
 
 **counselors**
+
 - `id` - Primary key
 - `username` - Login username
 - `password_hash` - Bcrypt hashed password
 - `created_at` - Timestamp
 
 **counselor_access_log**
+
 - `id` - Primary key
 - `counselor_id` - Foreign key
 - `student_id` - Foreign key
@@ -471,12 +497,14 @@ MIT License - Free to use for educational purposes
 ## 🆘 Support
 
 **For Students:**
+
 - Read error messages carefully
 - Use `console.log()` to debug
 - Ask your teacher or classmates
 - Check the troubleshooting section above
 
 **For Teachers:**
+
 - Open an issue on GitHub
 - Reference the `plan-SSR.md` document
 - Check Railway documentation for deployment issues

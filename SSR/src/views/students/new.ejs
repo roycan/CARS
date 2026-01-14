@@ -1,98 +1,93 @@
-<h1 class="title">Student Information</h1>
-<p class="subtitle">Please provide your information before starting the assessment.</p>
-
-<div class="columns">
-  <div class="column is-8 is-offset-2">
-    <div class="box">
-      <form action="/assessment/student" method="POST">
-        <div class="field">
-          <label class="label">Full Name *</label>
-          <div class="control">
-            <input 
-              class="input <%= locals.errors && errors.find(e => e.param === 'name') ? 'is-danger' : '' %>" 
-              type="text" 
-              name="name" 
-              placeholder="Juan Dela Cruz"
-              value="<%= locals.oldInput ? oldInput.name : '' %>"
-              required
-            >
-          </div>
+<div class="columns is-centered">
+    <div class="column is-8">
+        <div class="box">
+            <h1 class="title">Student Information</h1>
+            <p class="subtitle">Please provide your basic information to begin the assessment.</p>
+            
+            <form method="POST" action="/assessment/student">
+                <div class="field">
+                    <label class="label">Full Name *</label>
+                    <div class="control">
+                        <input class="input" type="text" name="name" required 
+                               value="<%= locals.formData?.name || '' %>"
+                               placeholder="Enter your full name">
+                    </div>
+                </div>
+                
+                <div class="field">
+                    <label class="label">Email Address *</label>
+                    <div class="control">
+                        <input class="input" type="email" name="email" required 
+                               value="<%= locals.formData?.email || '' %>"
+                               placeholder="your.email@example.com">
+                    </div>
+                </div>
+                
+                <div class="columns">
+                    <div class="column">
+                        <div class="field">
+                            <label class="label">Section *</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select name="section" required>
+                                        <option value="">Choose your section</option>
+                                        <% sections.forEach(section => { %>
+                                            <option value="<%= section %>" 
+                                                    <%= locals.formData?.section === section ? 'selected' : '' %>>
+                                                <%= section %>
+                                            </option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="column">
+                        <div class="field">
+                            <label class="label">Batch (Graduation Year) *</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select name="batch" required>
+                                        <option value="">Choose your batch</option>
+                                        <% batches.forEach(batch => { %>
+                                            <option value="<%= batch %>" 
+                                                    <%= locals.formData?.batch === batch ? 'selected' : '' %>>
+                                                <%= batch %>
+                                            </option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="field">
+                    <label class="label">School (Optional)</label>
+                    <div class="control">
+                        <div class="select is-fullwidth">
+                            <select name="school">
+                                <option value="">Choose your school (optional)</option>
+                                <% schools.forEach(school => { %>
+                                    <option value="<%= school %>" 
+                                            <%= locals.formData?.school === school ? 'selected' : '' %>>
+                                        <%= school %>
+                                    </option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-primary is-fullwidth" type="submit">
+                            Continue to Assessment
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
-
-        <div class="field">
-          <label class="label">Email Address *</label>
-          <div class="control">
-            <input 
-              class="input <%= locals.errors && errors.find(e => e.param === 'email') ? 'is-danger' : '' %>" 
-              type="email" 
-              name="email" 
-              placeholder="juan.delacruz@school.edu"
-              value="<%= locals.oldInput ? oldInput.email : '' %>"
-              required
-            >
-          </div>
-          <p class="help">We'll use this to save your results.</p>
-        </div>
-
-        <div class="field">
-          <label class="label">Section *</label>
-          <div class="control">
-            <div class="select is-fullwidth">
-              <select name="section" required>
-                <option value="">Select your section...</option>
-                <% sections.forEach(section => { %>
-                  <option value="<%= section %>" <%= locals.oldInput && oldInput.section === section ? 'selected' : '' %>>
-                    <%= section %>
-                  </option>
-                <% }); %>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="field">
-          <label class="label">Batch/Year *</label>
-          <div class="control">
-            <div class="select is-fullwidth">
-              <select name="batch" required>
-                <option value="">Select your batch...</option>
-                <% batches.forEach(batch => { %>
-                  <option value="<%= batch %>" <%= locals.oldInput && oldInput.batch === batch ? 'selected' : '' %>>
-                    <%= batch %>
-                  </option>
-                <% }); %>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="field">
-          <label class="label">School (Optional)</label>
-          <div class="control">
-            <div class="select is-fullwidth">
-              <select name="school">
-                <option value="">Select your school (optional)...</option>
-                <% schools.forEach(school => { %>
-                  <option value="<%= school %>" <%= locals.oldInput && oldInput.school === school ? 'selected' : '' %>>
-                    <%= school %>
-                  </option>
-                <% }); %>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="field is-grouped is-grouped-right mt-5">
-          <div class="control">
-            <a href="/" class="button is-light">Cancel</a>
-          </div>
-          <div class="control">
-            <button type="submit" class="button is-primary">
-              <strong>Continue to Assessment</strong>
-            </button>
-          </div>
-        </div>
-      </form>
     </div>
-  </div>
 </div>

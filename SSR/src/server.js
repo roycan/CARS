@@ -4,19 +4,19 @@
  * Entry point for the CARS SSR Assessment System
  */
 
-// Load environment variables
-require('dotenv').config();
-
 const express = require('express');
-const session = require('express-session');
 const path = require('path');
 const compression = require('compression');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const expressLayouts = require('express-ejs-layouts');
 
-// Configuration and database
+// Session middleware
+const { withSession } = require('./middleware/session');
+
+// Database connection
+const pool = require('./db/connection');
 const config = require('./config/env');
-const { initDatabase, closeDatabase } = require('./db/connection');
 
 // Routes
 const indexRoutes = require('./routes/index');
@@ -30,12 +30,14 @@ const app = express();
 // Trust proxy (needed for Railway and other platforms)
 app.set('trust proxy', 1);
 
-// View engine setup (EJS)
+// View engine setup (EJS with layouts)
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use(expressLayouts);
+app.set('layout', 'layouts/base');
 
 // Global app locals (available in all templates)
-app.locals.appName = config.appName;
+app.locals.appName = config.APP_NAME;
 
 // Security middleware
 app.use(helmet({
@@ -59,17 +61,8 @@ app.use(compression());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Session middleware
-app.use(session({
-  secret: config.sessionSecret,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: config.isProduction(), // HTTPS only in production
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
-}));
+// Session middleware (iron-session)
+app.use(withSession());
 
 // Diagnostic request logger (temporary for local testing) - after session so it can read it
 app.use((req, res, next) => {
@@ -83,8 +76,8 @@ app.use((req, res, next) => {
 
 // Rate limiting (prevent abuse)
 const limiter = rateLimit({
-  windowMs: config.rateLimit.windowMs,
-  max: config.rateLimit.max,
+  windowMs: config.RATE_LIMIT_WINDOW_MS,
+  max: config.RATE_LIMIT_MAX_REQUESTS,
   message: 'Too many requests from this IP, please try again later.'
 });
 app.use('/counselor/login', limiter); // Apply to login route
@@ -117,10 +110,10 @@ app.use('/counselor', counselorRoutes);
 
 // 404 Handler
 app.use((req, res) => {
-  res.status(404).render('pages/about', {
+  res.status(404).render('pages/error', {
     title: '404 - Page Not Found',
-    appName: config.appName,
-    counselor: req.session.counselor || null,
+    appName: config.APP_NAME,
+    counselor: req.session.counselorId || null,
     errors: [{ msg: `Page not found: ${req.url}` }]
   });
 });
@@ -129,31 +122,28 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error('Server error:', err);
   
-  res.status(err.status || 500).render('pages/about', {
+  res.status(err.status || 500).render('pages/error', {
     title: 'Error',
-    appName: config.appName,
-    counselor: req.session.counselor || null,
+    appName: config.APP_NAME,
+    counselor: req.session.counselorId || null,
     errors: [{ 
-      msg: config.isDevelopment() 
+      msg: config.NODE_ENV === 'development' 
         ? err.message 
         : 'An unexpected error occurred. Please try again later.' 
     }]
   });
 });
 
-// Initialize database
-initDatabase();
-
 // Start server
-const PORT = config.port;
+const PORT = config.PORT;
 const server = app.listen(PORT, () => {
   console.log('');
   console.log('╔═══════════════════════════════════════════════╗');
   console.log('║   🎓 CARS Assessment System - SSR Edition    ║');
   console.log('╚═══════════════════════════════════════════════╝');
   console.log('');
-  console.log(`✅ Server running in ${config.nodeEnv} mode`);
-  console.log(`🌐 URL: ${config.appUrl}`);
+  console.log(`✅ Server running in ${config.NODE_ENV} mode`);
+  console.log(`🌐 URL: http://localhost:${PORT}`);
   console.log(`📡 Port: ${PORT}`);
   console.log('');
   console.log('📚 Available routes:');
@@ -176,7 +166,7 @@ process.on('SIGTERM', () => {
   console.log('\n🛑 SIGTERM signal received: closing HTTP server');
   server.close(() => {
     console.log('💤 HTTP server closed');
-    closeDatabase();
+    pool.end();
     process.exit(0);
   });
 });
@@ -185,7 +175,7 @@ process.on('SIGINT', () => {
   console.log('\n🛑 SIGINT signal received: closing HTTP server');
   server.close(() => {
     console.log('💤 HTTP server closed');
-    closeDatabase();
+    pool.end();
     process.exit(0);
   });
 });

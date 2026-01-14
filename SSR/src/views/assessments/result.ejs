@@ -1,129 +1,103 @@
-<div class="hero <%= result.riskLevel === 'High risk' ? 'is-danger' : result.riskLevel === 'At-risk' ? 'is-warning' : 'is-success' %>">
-  <div class="hero-body">
-    <div class="container has-text-centered">
-      <h1 class="title is-1">Assessment Complete!</h1>
-      <h2 class="subtitle is-3">
-        Your Result: <strong><%= result.riskLevel %></strong>
-      </h2>
-    </div>
-  </div>
-</div>
-
-<section class="section">
-  <div class="container">
-    <div class="columns">
-      <div class="column is-8 is-offset-2">
-        
-        <!-- Student Info -->
+<div class="columns is-centered">
+    <div class="column is-8">
         <div class="box">
-          <h2 class="title is-4">Student Information</h2>
-          <p><strong>Name:</strong> <%= student.name %></p>
-          <p><strong>Email:</strong> <%= student.email %></p>
-          <p><strong>Section:</strong> <%= student.section %></p>
-          <p><strong>Batch:</strong> <%= student.batch %></p>
-          <% if (student.school) { %>
-            <p><strong>School:</strong> <%= student.school %></p>
-          <% } %>
-          <p><strong>Assessment Date:</strong> <%= new Date(result.calculatedAt).toLocaleString() %></p>
-        </div>
-
-        <!-- Interpretation -->
-        <div class="box">
-          <h2 class="title is-4">Interpretation</h2>
-          <div class="content">
-            <p class="is-size-5"><%= result.interpretation %></p>
+            <h1 class="title">Assessment Results</h1>
+            <p class="subtitle">Thank you for completing the CARS assessment, <%= student.name %>.</p>
             
-            <% if (result.selfHarmFlagged) { %>
-              <div class="message is-danger">
-                <div class="message-body">
-                  <p><strong>⚠️ Important Notice:</strong></p>
-                  <p>
-                    You indicated having thoughts of self-harm. Please know that you are not alone, 
-                    and help is available. We strongly encourage you to:
-                  </p>
-                  <ul>
-                    <li>Speak with a school counselor as soon as possible</li>
-                    <li>Talk to a trusted adult (parent, teacher, family member)</li>
-                    <li>Contact a mental health professional or crisis hotline</li>
-                  </ul>
-                  <p>
-                    <strong>Emergency Hotlines (Philippines):</strong><br>
-                    National Center for Mental Health: (02) 7989-8727<br>
-                    In Touch Crisis Line: (02) 8893-7603
-                  </p>
+            <!-- Risk Level Display -->
+            <div class="notification risk-<%= result.risk_level %>">
+                <h2 class="title is-4">
+                    Risk Level: 
+                    <% if (result.risk_level === 'normal') { %>
+                        Normal/No Risk
+                    <% } else if (result.risk_level === 'at-risk') { %>
+                        At-Risk
+                    <% } else { %>
+                        High Risk
+                    <% } %>
+                </h2>
+                <p><%= result.interpretation %></p>
+            </div>
+            
+            <!-- Self-Harm Alert -->
+            <% if (result.self_harm_flagged) { %>
+                <div class="notification is-danger">
+                    <h3 class="title is-5">⚠️ Immediate Attention Needed</h3>
+                    <p>
+                        You indicated having thoughts of self-harm. Please reach out to a trusted adult, 
+                        counselor, or mental health professional immediately. You are not alone, and help is available.
+                    </p>
+                    <div class="content">
+                        <strong>Crisis Resources:</strong>
+                        <ul>
+                            <li>School Counselor: Available during school hours</li>
+                            <li>Crisis Hotline: [Local crisis number]</li>
+                            <li>Emergency: Call 911 or go to nearest emergency room</li>
+                        </ul>
+                    </div>
                 </div>
-              </div>
             <% } %>
-          </div>
-        </div>
-
-        <!-- Score Details -->
-        <div class="box">
-          <h2 class="title is-4">Your Scores</h2>
-          <div class="content">
-            <p class="subtitle is-6">T-Scores by Subscale</p>
             
-            <div class="columns is-multiline">
-              <% scales.forEach(scale => { %>
-                <div class="column is-6">
-                  <div class="notification is-light">
-                    <p class="heading"><%= scale.label %></p>
-                    <p class="title is-4"><%= result.tScores[scale.key] %></p>
-                    <p class="help">Raw Score: <%= result.rawScores[scale.key] %></p>
-                  </div>
+            <!-- Detailed Scores -->
+            <div class="box">
+                <h3 class="title is-5">Detailed Scores</h3>
+                <div class="columns is-multiline">
+                    <div class="column is-6">
+                        <div class="box has-text-centered">
+                            <h4 class="title is-6">Externalizing</h4>
+                            <p class="title is-4"><%= result.t_scores.externalizing %></p>
+                            <p class="subtitle is-6">T-Score</p>
+                        </div>
+                    </div>
+                    <div class="column is-6">
+                        <div class="box has-text-centered">
+                            <h4 class="title is-6">Internalizing</h4>
+                            <p class="title is-4"><%= result.t_scores.internalizing %></p>
+                            <p class="subtitle is-6">T-Score</p>
+                        </div>
+                    </div>
+                    <div class="column is-6">
+                        <div class="box has-text-centered">
+                            <h4 class="title is-6">Social</h4>
+                            <p class="title is-4"><%= result.t_scores.social %></p>
+                            <p class="subtitle is-6">T-Score</p>
+                        </div>
+                    </div>
+                    <div class="column is-6">
+                        <div class="box has-text-centered">
+                            <h4 class="title is-6">Academic/Learning</h4>
+                            <p class="title is-4"><%= result.t_scores.academic %></p>
+                            <p class="subtitle is-6">T-Score</p>
+                        </div>
+                    </div>
+                    <div class="column is-12">
+                        <div class="box has-text-centered risk-<%= result.risk_level %>">
+                            <h4 class="title is-5">Total Score</h4>
+                            <p class="title is-2"><%= result.t_scores.total %></p>
+                            <p class="subtitle is-6">Overall T-Score</p>
+                        </div>
+                    </div>
                 </div>
-              <% }); %>
             </div>
-
-            <div class="notification <%= result.tScores.total > 70 ? 'is-danger' : result.tScores.total > 60 ? 'is-warning' : 'is-success' %>">
-              <p class="heading">Total T-Score</p>
-              <p class="title is-2"><%= result.tScores.total %></p>
+            
+            <!-- Next Steps -->
+            <div class="box">
+                <h3 class="title is-5">Next Steps</h3>
+                <div class="content">
+                    <% if (result.risk_level === 'normal') { %>
+                        <p>Continue with regular school activities and support. Consider retaking this assessment monthly to monitor your well-being.</p>
+                    <% } else if (result.risk_level === 'at-risk') { %>
+                        <p>Consider speaking with a school counselor about additional support resources. You may benefit from targeted interventions or support groups.</p>
+                    <% } else { %>
+                        <p>It's important to connect with a school counselor or mental health professional soon. You may benefit from intensive support services.</p>
+                    <% } %>
+                </div>
             </div>
-          </div>
+            
+            <div class="buttons">
+                <a href="/" class="button is-primary">Return Home</a>
+                <a href="/assessment/new" class="button is-light">Take Another Assessment</a>
+            </div>
         </div>
-
-        <!-- Next Steps -->
-        <div class="box">
-          <h2 class="title is-4">What Happens Next?</h2>
-          <div class="content">
-            <p>
-              Your results have been saved and shared with your school counselor. They may:
-            </p>
-            <ul>
-              <li>Schedule a follow-up meeting to discuss your results</li>
-              <li>Provide resources and support strategies</li>
-              <li>Coordinate with teachers if needed for academic support</li>
-              <li>Connect you with additional services if appropriate</li>
-            </ul>
-            <p>
-              <strong>Remember:</strong> This assessment is just one tool. Your counselor will 
-              consider your complete situation and work with you to identify the best support.
-            </p>
-          </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="field is-grouped is-grouped-centered mt-5">
-          <div class="control">
-            <a href="/" class="button is-primary is-large">
-              <strong>Return to Home</strong>
-            </a>
-          </div>
-        </div>
-
-        <div class="has-text-centered mt-4">
-          <p class="is-size-7 has-text-grey">
-            Assessment ID: <%= assessment.id %> | 
-            Your counselor can reference this ID when discussing your results.
-          </p>
-        </div>
-
-      </div>
     </div>
-  </div>
-</section>
-
-<script>
-  // Clear localStorage draft after successful submission
-  localStorage.removeItem('cars_assessment_draft');
-</script>
+</div>

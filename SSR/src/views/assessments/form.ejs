@@ -1,101 +1,92 @@
-<h1 class="title">Assessment Questionnaire</h1>
-<p class="subtitle">
-  Rate each item based on your experiences in the <strong>past month</strong>. 
-  There are no right or wrong answers—please be honest.
-</p>
-
-<div class="notification is-info is-light">
-  <strong>Student:</strong> <%= student.name %> (<%= student.section %> - <%= student.batch %>)
+<div class="columns is-centered">
+    <div class="column is-10">
+        <div class="box">
+            <h1 class="title">CARS Assessment</h1>
+            <p class="subtitle">Please answer each question based on your experiences in the past month.</p>
+            
+            <div class="notification is-info">
+                <p><strong>Instructions:</strong> For each statement, select how often it applies to you:</p>
+                <ul>
+                    <li><strong>Never (0):</strong> This never happens to me</li>
+                    <li><strong>Rarely (1):</strong> This happens once in a while</li>
+                    <li><strong>Occasionally (2):</strong> This happens sometimes</li>
+                    <li><strong>Often (3):</strong> This happens frequently</li>
+                    <li><strong>Almost Always (4):</strong> This happens most of the time</li>
+                </ul>
+            </div>
+            
+            <form method="POST" action="/assessment/submit" class="assessment-form">
+                <% questions.forEach((question, index) => { %>
+                    <div class="field">
+                        <div class="box">
+                            <label class="label">
+                                <%= question.en %>
+                            </label>
+                            <p class="help"><em><%= question.tl %></em></p>
+                            
+                            <div class="control">
+                                <% if (question.special) { %>
+                                    <!-- Special Yes/No question for self-harm -->
+                                    <label class="radio">
+                                        <input type="radio" name="q<%= index %>" value="0" required>
+                                        No / Hindi
+                                    </label>
+                                    <label class="radio">
+                                        <input type="radio" name="q<%= index %>" value="1">
+                                        Yes / Oo
+                                    </label>
+                                <% } else { %>
+                                    <!-- Regular 0-4 scale questions -->
+                                    <% ratingOptions.forEach(option => { %>
+                                        <label class="radio">
+                                            <input type="radio" name="q<%= index %>" value="<%= option.value %>" required>
+                                            <%= option.label %>
+                                        </label>
+                                    <% }) %>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+                
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-primary is-large is-fullwidth" type="submit">
+                            Submit Assessment
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
-<form action="/assessment/submit" method="POST" id="assessment-form">
-  <input type="hidden" name="student_id" value="<%= student.id %>">
-
-  <% questions.forEach((q, index) => { %>
-    <div class="box question-card">
-      <div class="bilingual-text">
-        <div class="english"><%= q.en %></div>
-        <div class="filipino"><%= q.tl %></div>
-      </div>
-
-      <% if (q.special) { %>
-        <!-- Question 25: Self-harm (Yes/No) -->
-        <div class="control">
-          <% selfHarmOptions.forEach(option => { %>
-            <label class="radio">
-              <input 
-                type="radio" 
-                name="q<%= index %>" 
-                value="<%= option.value %>"
-                <%= option.value === 0 ? 'checked' : '' %>
-                required
-              >
-              <%= option.label %>
-            </label>
-            <br>
-          <% }); %>
-        </div>
-        
-        <% if (index === 24) { %>
-          <div class="message is-danger mt-3">
-            <div class="message-body">
-              <strong>Important:</strong> If you answered "Yes" to this question, please consider 
-              speaking with a trusted adult, school counselor, or mental health professional. 
-              You are not alone, and help is available.
-            </div>
-          </div>
-        <% } %>
-      <% } else { %>
-        <!-- Questions 1-24: Rating scale -->
-        <div class="control">
-          <% ratingOptions.forEach(option => { %>
-            <label class="radio">
-              <input 
-                type="radio" 
-                name="q<%= index %>" 
-                value="<%= option.value %>"
-                <%= option.value === 0 ? 'checked' : '' %>
-                required
-              >
-              <%= option.label %>
-            </label>
-            <br>
-          <% }); %>
-        </div>
-      <% } %>
-    </div>
-  <% }); %>
-
-  <div class="box has-background-light">
-    <div class="field is-grouped is-grouped-centered">
-      <div class="control">
-        <button type="submit" class="button is-primary is-large">
-          <strong>Submit Assessment</strong>
-        </button>
-      </div>
-    </div>
-    <p class="has-text-centered mt-3">
-      <small>Please review your answers before submitting. You can change any answer before submitting.</small>
-    </p>
-  </div>
-</form>
-
 <script>
-  // Optional: Save to localStorage for recovery (Phase 8 feature - basic version)
-  document.getElementById('assessment-form').addEventListener('change', function() {
-    const formData = new FormData(this);
-    const data = {};
-    for (let [key, value] of formData.entries()) {
-      data[key] = value;
-    }
-    localStorage.setItem('cars_assessment_draft', JSON.stringify(data));
-  });
-
-  // Confirmation before submit
-  document.getElementById('assessment-form').addEventListener('submit', function(e) {
-    const confirmed = confirm('Are you ready to submit your assessment? You cannot change your answers after submission.');
-    if (!confirmed) {
-      e.preventDefault();
-    }
-  });
+// Auto-save progress to localStorage
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.assessment-form');
+    const inputs = form.querySelectorAll('input[type="radio"]');
+    
+    // Load saved answers
+    inputs.forEach(input => {
+        const saved = localStorage.getItem('cars_' + input.name);
+        if (saved === input.value) {
+            input.checked = true;
+        }
+    });
+    
+    // Save answers as user progresses
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            localStorage.setItem('cars_' + this.name, this.value);
+        });
+    });
+    
+    // Clear localStorage on successful submit
+    form.addEventListener('submit', function() {
+        inputs.forEach(input => {
+            localStorage.removeItem('cars_' + input.name);
+        });
+    });
+});
 </script>

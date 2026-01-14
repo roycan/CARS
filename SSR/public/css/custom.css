@@ -1,0 +1,40 @@
+/* Custom CARS Assessment System Styles */
+
+.risk-normal {
+  background-color: #48c78e !important;
+  color: white !important;
+}
+
+.risk-at-risk {
+  background-color: #ffe08a !important;
+  color: #363636 !important;
+}
+
+.risk-high {
+  background-color: #f14668 !important;
+  color: white !important;
+}
+
+.assessment-form .field {
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-stats .box {
+  text-align: center;
+}
+
+.dashboard-stats .title {
+  margin-bottom: 0.5rem;
+}
+
+.student-list .table {
+  margin-top: 1rem;
+}
+
+.navbar-brand .title {
+  color: white !important;
+}
+
+.footer {
+  margin-top: 3rem;
+}
