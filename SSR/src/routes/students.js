@@ -1,88 +1,74 @@
-/**
- * routes/students.js
- * Student information routes
- */
-
 const express = require('express');
-const router = express.Router();
-const { body } = require('express-validator');
-const { checkValidation, sanitizeStudentData, isValidEmail } = require('../middleware/validation');
-const { createStudent, findStudentByEmail } = require('../models/student');
+const { body, validationResult } = require('express-validator');
+const { withSession } = require('../middleware/session');
+const Student = require('../models/student');
 const config = require('../config/env');
+const router = express.Router();
 
 /**
  * GET /assessment/new - Student information form
  */
-router.get('/new', (req, res) => {
+router.get('/new', withSession(), (req, res) => {
   res.render('students/new', {
     title: 'Student Information',
-    appName: req.app.locals.appName,
-    counselor: req.session.counselor || null,
-    sections: config.schoolConfig.sections,
-    batches: config.schoolConfig.batches,
-    schools: config.schoolConfig.schools,
-    errors: req.session.errors || [],
-    oldInput: req.session.oldInput || {}
+    sections: config.SCHOOL_SECTIONS,
+    batches: config.SCHOOL_BATCHES,
+    schools: config.SCHOOL_NAMES,
+    formData: req.session.formData || {}
   });
-  
-  // Clear session errors and old input
-  delete req.session.errors;
-  delete req.session.oldInput;
 });
 
 /**
- * POST /assessment/student - Submit student information
+ * POST /assessment/student - Process student information
  */
-router.post('/student',
-  // Validation rules
+router.post('/student', 
+  withSession(),
   [
-    body('name').trim().notEmpty().withMessage('Name is required').isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
-    body('email').trim().notEmpty().withMessage('Email is required').isEmail().withMessage('Invalid email address'),
-    body('section').notEmpty().withMessage('Section is required'),
-    body('batch').notEmpty().withMessage('Batch is required')
+    body('name').trim().isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
+    body('email').isEmail().withMessage('Please enter a valid email address'),
+    body('section').notEmpty().withMessage('Please select a section'),
+    body('batch').notEmpty().withMessage('Please select a batch'),
+    body('school').optional()
   ],
-  checkValidation,
   async (req, res) => {
     try {
-      console.log('📝 Student form submitted:', req.body);
+      const errors = validationResult(req);
       
-      // Sanitize input
-      const studentData = sanitizeStudentData(req.body);
-      console.log('✅ Sanitized data:', studentData);
+      if (!errors.isEmpty()) {
+        req.session.errors = errors.array();
+        req.session.formData = req.body;
+        await req.session.save();
+        return res.redirect('/assessment/new');
+      }
+      
+      const { name, email, section, batch, school } = req.body;
       
       // Check if student already exists
-      let student = findStudentByEmail(studentData.email);
+      let student = await Student.findByEmail(email);
       
       if (!student) {
         // Create new student
-        student = createStudent(studentData);
-        console.log('➕ Created new student:', student.id);
-      } else {
-        console.log('🔄 Found existing student:', student.id);
+        student = await Student.create({
+          name,
+          email,
+          section,
+          batch,
+          school: school || null
+        });
       }
       
       // Store student in session
+      req.session.studentId = student.id;
       req.session.student = student;
-      console.log('💾 Stored student in session:', req.session.student);
+      await req.session.save();
       
-      // Save session before redirect to ensure it persists
-      req.session.save((err) => {
-        if (err) {
-          console.error('❌ Session save error:', err);
-          req.session.errors = [{ msg: 'An error occurred. Please try again.' }];
-          req.session.oldInput = req.body;
-          return res.redirect('/assessment/new');
-        }
-        
-        console.log('✅ Session saved, redirecting to /assessment/form');
-        // Redirect to assessment form
-        res.redirect('/assessment/form');
-      });
+      res.redirect('/assessment/form');
       
     } catch (error) {
-      console.error('Error creating student:', error);
+      console.error('Error processing student:', error);
       req.session.errors = [{ msg: 'An error occurred. Please try again.' }];
-      req.session.oldInput = req.body;
+      req.session.formData = req.body;
+      await req.session.save();
       res.redirect('/assessment/new');
     }
   }

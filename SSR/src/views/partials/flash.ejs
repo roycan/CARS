@@ -1,44 +1,25 @@
 <% if (locals.errors && errors.length > 0) { %>
-  <div class="notification is-danger">
-    <button class="delete"></button>
-    <strong>Please correct the following errors:</strong>
-    <ul>
-      <% errors.forEach(error => { %>
-        <li><%= error.msg %></li>
-      <% }); %>
-    </ul>
-  </div>
+    <div class="notification is-danger">
+        <% errors.forEach(error => { %>
+            <p><%= error.msg || error %></p>
+        <% }) %>
+    </div>
 <% } %>
 
 <% if (locals.success) { %>
-  <div class="notification is-success">
-    <button class="delete"></button>
-    <%= success %>
-  </div>
+    <div class="notification is-success">
+        <p><%= success %></p>
+    </div>
 <% } %>
 
 <% if (locals.info) { %>
-  <div class="notification is-info">
-    <button class="delete"></button>
-    <%= info %>
-  </div>
+    <div class="notification is-info">
+        <p><%= info %></p>
+    </div>
 <% } %>
 
 <% if (locals.warning) { %>
-  <div class="notification is-warning">
-    <button class="delete"></button>
-    <%= warning %>
-  </div>
+    <div class="notification is-warning">
+        <p><%= warning %></p>
+    </div>
 <% } %>
-
-<script>
-  // Close notification on delete button click
-  document.addEventListener('DOMContentLoaded', () => {
-    const deleteButtons = document.querySelectorAll('.notification .delete');
-    deleteButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        button.parentElement.remove();
-      });
-    });
-  });
-</script>

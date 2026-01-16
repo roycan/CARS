@@ -1,61 +1,49 @@
-<nav class="navbar is-primary" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
-    <a class="navbar-item" href="/">
-      <strong>🎓 <%= appName %></strong>
-    </a>
-    
-    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMenu">
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-    </a>
-  </div>
-
-  <div id="navbarMenu" class="navbar-menu">
-    <div class="navbar-start">
-      <a class="navbar-item" href="/">
-        Home
-      </a>
-      <a class="navbar-item" href="/about">
-        About
-      </a>
-      <a class="navbar-item" href="/assessment/new">
-        Take Assessment
-      </a>
+<nav class="navbar is-primary" role="navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            <strong class="title is-4 has-text-white"><%= appName %></strong>
+        </a>
+        <a role="button" class="navbar-burger" data-target="navbarMenu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </a>
     </div>
 
-    <div class="navbar-end">
-      <div class="navbar-item">
-        <div class="buttons">
-          <% if (counselor) { %>
-            <a class="button is-light" href="/counselor/dashboard">
-              <strong>Dashboard</strong>
-            </a>
-            <a class="button is-light" href="/counselor/logout">
-              Logout
-            </a>
-          <% } else { %>
-            <a class="button is-light" href="/counselor/login">
-              Counselor Login
-            </a>
-          <% } %>
+    <div id="navbarMenu" class="navbar-menu">
+        <div class="navbar-start">
+            <a class="navbar-item" href="/">Home</a>
+            <a class="navbar-item" href="/about">About</a>
+            <a class="navbar-item" href="/assessment/new">Take Assessment</a>
         </div>
-      </div>
+
+        <div class="navbar-end">
+            <% if (locals.counselor) { %>
+                <a class="navbar-item" href="/counselor/dashboard">Dashboard</a>
+                <div class="navbar-item">
+                    <form method="POST" action="/counselor/logout" style="display: inline;">
+                        <button class="button is-light is-small" type="submit">Logout</button>
+                    </form>
+                </div>
+            <% } else { %>
+                <a class="navbar-item" href="/counselor/login">Counselor Login</a>
+            <% } %>
+        </div>
     </div>
-  </div>
 </nav>
 
 <script>
-  // Toggle mobile menu
-  document.addEventListener('DOMContentLoaded', () => {
-    const burger = document.querySelector('.navbar-burger');
-    const menu = document.getElementById('navbarMenu');
-    
-    if (burger) {
-      burger.addEventListener('click', () => {
-        burger.classList.toggle('is-active');
-        menu.classList.toggle('is-active');
-      });
+document.addEventListener('DOMContentLoaded', () => {
+    const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+    if ($navbarBurgers.length > 0) {
+        $navbarBurgers.forEach(el => {
+            el.addEventListener('click', () => {
+                const target = el.dataset.target;
+                const $target = document.getElementById(target);
+                el.classList.toggle('is-active');
+                $target.classList.toggle('is-active');
+            });
+        });
     }
-  });
+});
 </script>

@@ -1,51 +1,22 @@
-/**
- * config/env.js
- * Environment configuration management
- * Loads variables from .env file and provides defaults
- */
-
 require('dotenv').config();
 
 module.exports = {
-  // Server settings
-  nodeEnv: process.env.NODE_ENV || 'development',
-  port: parseInt(process.env.PORT, 10) || 3000,
+  NODE_ENV: process.env.NODE_ENV || 'development',
+  PORT: process.env.PORT || 3000,
+  DATABASE_URL: process.env.DATABASE_URL,
+  SESSION_SECRET: process.env.SESSION_SECRET,
+  APP_NAME: process.env.APP_NAME || 'CARS Assessment System',
   
-  // Session configuration
-  sessionSecret: process.env.SESSION_SECRET || 'dev-secret-change-in-production',
+  // Counselor defaults
+  DEFAULT_COUNSELOR_USERNAME: process.env.DEFAULT_COUNSELOR_USERNAME || 'counselor',
+  DEFAULT_COUNSELOR_PASSWORD: process.env.DEFAULT_COUNSELOR_PASSWORD || 'changeme123',
   
-  // Database
-  databasePath: process.env.DATABASE_PATH || './data/database.db',
-  
-  // Application
-  appName: process.env.APP_NAME || 'CARS Assessment System',
-  appUrl: process.env.APP_URL || 'http://localhost:3000',
-  
-  // Default counselor (for seeding)
-  defaultCounselor: {
-    username: process.env.DEFAULT_COUNSELOR_USERNAME || 'counselor',
-    password: process.env.DEFAULT_COUNSELOR_PASSWORD || 'changeme123'
-  },
-  
-  // School configuration (for dropdowns)
-  schoolConfig: {
-    sections: (process.env.SCHOOL_SECTIONS || 'Grade 9-A,Grade 9-B,Grade 9-C,Grade 9-D').split(',').map(s => s.trim()),
-    batches: (process.env.SCHOOL_BATCHES || '2024,2025,2026,2027,2028').split(',').map(s => s.trim()),
-    schools: (process.env.SCHOOL_NAMES || 'Sample High School,Another High School').split(',').map(s => s.trim())
-  },
+  // School configuration
+  SCHOOL_SECTIONS: process.env.SCHOOL_SECTIONS ? process.env.SCHOOL_SECTIONS.split(',') : ['Grade 9-A', 'Grade 9-B'],
+  SCHOOL_BATCHES: process.env.SCHOOL_BATCHES ? process.env.SCHOOL_BATCHES.split(',') : ['2024', '2025'],
+  SCHOOL_NAMES: process.env.SCHOOL_NAMES ? process.env.SCHOOL_NAMES.split(',') : ['Sample High School'],
   
   // Rate limiting
-  rateLimit: {
-    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 15 * 60 * 1000, // 15 minutes
-    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS, 10) || 100
-  },
-  
-  // Helper methods
-  isDevelopment() {
-    return this.nodeEnv === 'development';
-  },
-  
-  isProduction() {
-    return this.nodeEnv === 'production';
-  }
+  RATE_LIMIT_WINDOW_MS: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 900000,
+  RATE_LIMIT_MAX_REQUESTS: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100
 };

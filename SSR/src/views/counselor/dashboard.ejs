@@ -1,153 +1,164 @@
-<h1 class="title">Counselor Dashboard</h1>
-<p class="subtitle">Welcome, <%= counselor.username %>!</p>
-
-<!-- Statistics Overview -->
-<div class="columns is-multiline">
-  <div class="column is-3">
-    <div class="box has-text-centered">
-      <p class="heading">Total Students</p>
-      <p class="title is-3"><%= stats.totalStudents %></p>
+<div class="content">
+    <h1 class="title">Counselor Dashboard</h1>
+    <p class="subtitle">Assessment overview and student management</p>
+    
+    <!-- Statistics Overview -->
+    <div class="columns is-multiline dashboard-stats">
+        <div class="column is-3">
+            <div class="box">
+                <h3 class="title is-4"><%= stats.total_assessments %></h3>
+                <p class="subtitle is-6">Total Assessments</p>
+            </div>
+        </div>
+        <div class="column is-3">
+            <div class="box">
+                <h3 class="title is-4"><%= stats.unique_students %></h3>
+                <p class="subtitle is-6">Students Assessed</p>
+            </div>
+        </div>
+        <div class="column is-3">
+            <div class="box risk-high">
+                <h3 class="title is-4"><%= stats.high_risk_count %></h3>
+                <p class="subtitle is-6">High Risk</p>
+            </div>
+        </div>
+        <div class="column is-3">
+            <div class="box">
+                <h3 class="title is-4"><%= stats.self_harm_count %></h3>
+                <p class="subtitle is-6">Self-Harm Flagged</p>
+            </div>
+        </div>
     </div>
-  </div>
-  <div class="column is-3">
-    <div class="box has-text-centered has-background-success-light">
-      <p class="heading">Normal/No Risk</p>
-      <p class="title is-3"><%= stats.normalCount %></p>
+    
+    <!-- Risk Level Breakdown -->
+    <div class="box">
+        <h3 class="title is-5">Risk Level Distribution</h3>
+        <div class="columns">
+            <div class="column">
+                <div class="notification risk-normal">
+                    <strong>Normal/No Risk:</strong> <%= stats.normal_count %> students
+                </div>
+            </div>
+            <div class="column">
+                <div class="notification risk-at-risk">
+                    <strong>At-Risk:</strong> <%= stats.at_risk_count %> students
+                </div>
+            </div>
+            <div class="column">
+                <div class="notification risk-high">
+                    <strong>High Risk:</strong> <%= stats.high_risk_count %> students
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-  <div class="column is-3">
-    <div class="box has-text-centered has-background-warning-light">
-      <p class="heading">At-Risk</p>
-      <p class="title is-3"><%= stats.atRiskCount %></p>
+    
+    <!-- Student List -->
+    <div class="box">
+        <div class="level">
+            <div class="level-left">
+                <h3 class="title is-5">Students</h3>
+            </div>
+            <div class="level-right">
+                <div class="field has-addons">
+                    <div class="control">
+                        <div class="select">
+                            <select id="sectionFilter">
+                                <option value="">All Sections</option>
+                                <% sections.forEach(section => { %>
+                                    <option value="<%= section %>"><%= section %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="control">
+                        <div class="select">
+                            <select id="riskFilter">
+                                <option value="">All Risk Levels</option>
+                                <option value="normal">Normal</option>
+                                <option value="at-risk">At-Risk</option>
+                                <option value="high">High Risk</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table class="table is-fullwidth is-striped student-list">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Section</th>
+                        <th>Batch</th>
+                        <th>Latest Risk Level</th>
+                        <th>Last Assessment</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% students.forEach(student => { %>
+                        <tr data-section="<%= student.section %>" 
+                            data-risk="<%= student.risk_level || 'none' %>">
+                            <td><strong><%= student.name %></strong></td>
+                            <td><%= student.section %></td>
+                            <td><%= student.batch %></td>
+                            <td>
+                                <% if (student.risk_level) { %>
+                                    <span class="tag risk-<%= student.risk_level %>">
+                                        <% if (student.risk_level === 'normal') { %>Normal
+                                        <% } else if (student.risk_level === 'at-risk') { %>At-Risk
+                                        <% } else { %>High Risk<% } %>
+                                    </span>
+                                    <% if (student.self_harm_flagged) { %>
+                                        <span class="tag is-danger">⚠️ Self-Harm</span>
+                                    <% } %>
+                                <% } else { %>
+                                    <span class="tag is-light">No Assessment</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <% if (student.last_assessment) { %>
+                                    <%= new Date(student.last_assessment).toLocaleDateString() %>
+                                <% } else { %>
+                                    Never
+                                <% } %>
+                            </td>
+                            <td>
+                                <a href="/counselor/student/<%= student.id %>" 
+                                   class="button is-small is-info">View Details</a>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
     </div>
-  </div>
-  <div class="column is-3">
-    <div class="box has-text-centered has-background-danger-light">
-      <p class="heading">High Risk</p>
-      <p class="title is-3"><%= stats.highRiskCount %></p>
-    </div>
-  </div>
 </div>
 
-<% if (stats.selfHarmCount > 0) { %>
-  <div class="notification is-danger">
-    <strong>⚠️ Alert:</strong> <%= stats.selfHarmCount %> student(s) have indicated thoughts of self-harm. 
-    Please review these cases immediately.
-  </div>
-<% } %>
-
-<!-- Filters -->
-<div class="box">
-  <form action="/counselor/dashboard" method="GET" class="columns is-multiline">
-    <div class="column is-3">
-      <div class="field">
-        <label class="label">Section</label>
-        <div class="control">
-          <div class="select is-fullwidth">
-            <select name="section">
-              <option value="">All Sections</option>
-              <% sections.forEach(section => { %>
-                <option value="<%= section %>" <%= filters.section === section ? 'selected' : '' %>>
-                  <%= section %>
-                </option>
-              <% }); %>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="column is-3">
-      <div class="field">
-        <label class="label">Batch</label>
-        <div class="control">
-          <div class="select is-fullwidth">
-            <select name="batch">
-              <option value="">All Batches</option>
-              <% batches.forEach(batch => { %>
-                <option value="<%= batch %>" <%= filters.batch === batch ? 'selected' : '' %>>
-                  <%= batch %>
-                </option>
-              <% }); %>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="column is-3">
-      <div class="field">
-        <label class="label">Risk Level</label>
-        <div class="control">
-          <div class="select is-fullwidth">
-            <select name="riskLevel">
-              <option value="">All Levels</option>
-              <option value="Normal/No Risk" <%= filters.riskLevel === 'Normal/No Risk' ? 'selected' : '' %>>Normal/No Risk</option>
-              <option value="At-risk" <%= filters.riskLevel === 'At-risk' ? 'selected' : '' %>>At-risk</option>
-              <option value="High risk" <%= filters.riskLevel === 'High risk' ? 'selected' : '' %>>High risk</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="column is-3">
-      <div class="field">
-        <label class="label">&nbsp;</label>
-        <div class="control">
-          <button type="submit" class="button is-primary is-fullwidth">Apply Filters</button>
-        </div>
-      </div>
-    </div>
-  </form>
-</div>
-
-<!-- Student List -->
-<div class="box">
-  <h2 class="title is-4">Recent Assessments (<%= students.length %>)</h2>
-  
-  <% if (students.length === 0) { %>
-    <div class="notification is-light">
-      No assessments found matching the selected filters.
-    </div>
-  <% } else { %>
-    <div class="table-container">
-      <table class="table is-fullwidth is-striped is-hoverable">
-        <thead>
-          <tr>
-            <th>Student</th>
-            <th>Section</th>
-            <th>Batch</th>
-            <th>Risk Level</th>
-            <th>T-Score</th>
-            <th>Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% students.forEach(s => { %>
-            <tr>
-              <td>
-                <%= s.name %>
-                <% if (s.self_harm_flagged) { %>
-                  <span class="tag is-danger is-light">⚠️ Self-harm</span>
-                <% } %>
-              </td>
-              <td><%= s.section %></td>
-              <td><%= s.batch %></td>
-              <td>
-                <span class="risk-badge risk-<%= s.risk_level === 'High risk' ? 'high' : s.risk_level === 'At-risk' ? 'at-risk' : 'normal' %>">
-                  <%= s.risk_level %>
-                </span>
-              </td>
-              <td><%= s.t_scores ? JSON.parse(s.t_scores).total : 'N/A' %></td>
-              <td><%= s.taken_at ? new Date(s.taken_at).toLocaleDateString() : 'N/A' %></td>
-              <td>
-                <a href="/counselor/student/<%= s.id %>" class="button is-small is-info">
-                  View Details
-                </a>
-              </td>
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
-    </div>
-  <% } %>
-</div>
+<script>
+// Filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const sectionFilter = document.getElementById('sectionFilter');
+    const riskFilter = document.getElementById('riskFilter');
+    const rows = document.querySelectorAll('tbody tr');
+    
+    function filterTable() {
+        const sectionValue = sectionFilter.value;
+        const riskValue = riskFilter.value;
+        
+        rows.forEach(row => {
+            const section = row.dataset.section;
+            const risk = row.dataset.risk;
+            
+            const sectionMatch = !sectionValue || section === sectionValue;
+            const riskMatch = !riskValue || risk === riskValue;
+            
+            row.style.display = sectionMatch && riskMatch ? '' : 'none';
+        });
+    }
+    
+    sectionFilter.addEventListener('change', filterTable);
+    riskFilter.addEventListener('change', filterTable);
+});
+</script>

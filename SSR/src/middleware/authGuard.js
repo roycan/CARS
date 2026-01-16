@@ -1,40 +1,35 @@
-/**
- * middleware/authGuard.js
- * Authentication middleware to protect counselor routes
- * Checks if user is logged in before allowing access
- */
+const { withSession } = require('./session');
 
-/**
- * Middleware to require authentication
- * Redirects to login page if not authenticated
- */
 function requireAuth(req, res, next) {
-  // Check if user is logged in (session has counselor data)
-  if (req.session && req.session.counselor) {
-    // User is authenticated, proceed to route
-    return next();
+  if (!req.session.counselorId) {
+    return res.redirect('/counselor/login');
   }
-  
-  // User is not authenticated, redirect to login
-  req.session.returnTo = req.originalUrl; // Save where they were trying to go
-  res.redirect('/counselor/login');
+  next();
 }
 
-/**
- * Middleware to redirect if already authenticated
- * Used on login page - if already logged in, go to dashboard
- */
-function redirectIfAuthenticated(req, res, next) {
-  if (req.session && req.session.counselor) {
-    // Already logged in, redirect to dashboard
+function requireGuest(req, res, next) {
+  if (req.session.counselorId) {
     return res.redirect('/counselor/dashboard');
   }
-  
-  // Not logged in, proceed to login page
   next();
+}
+
+// Combine session middleware with auth check
+function withAuth(req, res, next) {
+  withSession()(req, res, () => {
+    requireAuth(req, res, next);
+  });
+}
+
+function withGuest(req, res, next) {
+  withSession()(req, res, () => {
+    requireGuest(req, res, next);
+  });
 }
 
 module.exports = {
   requireAuth,
-  redirectIfAuthenticated
+  requireGuest,
+  withAuth,
+  withGuest
 };

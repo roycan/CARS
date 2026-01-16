@@ -1,118 +1,46 @@
-/**
- * models/counselor.js
- * Counselor data access layer
- * Handles all database operations for counselors and access logs
- */
+const pool = require('../db/connection');
+const bcrypt = require('bcrypt');
 
-const { getDatabase } = require('../db/connection');
-const { hashPassword } = require('../services/auth');
-
-/**
- * Create a new counselor
- * @param {string} username - Username
- * @param {string} plainPassword - Plain text password (will be hashed)
- * @returns {Promise<Object>} Created counselor (without password)
- */
-async function createCounselor(username, plainPassword) {
-  const db = getDatabase();
+class Counselor {
+  static async findByUsername(username) {
+    const result = await pool.query(
+      'SELECT * FROM counselors WHERE username = $1',
+      [username]
+    );
+    return result.rows[0];
+  }
   
-  // Hash the password
-  const passwordHash = await hashPassword(plainPassword);
+  static async validatePassword(username, password) {
+    const counselor = await this.findByUsername(username);
+    if (!counselor) {
+      return null;
+    }
+    
+    const isValid = await bcrypt.compare(password, counselor.password_hash);
+    return isValid ? counselor : null;
+  }
   
-  const stmt = db.prepare(`
-    INSERT INTO counselors (username, password_hash)
-    VALUES (?, ?)
-  `);
+  static async logAccess(counselorId, action, studentId = null) {
+    await pool.query(`
+      INSERT INTO counselor_access_log (counselor_id, student_id, action)
+      VALUES ($1, $2, $3)
+    `, [counselorId, studentId, action]);
+  }
   
-  const info = stmt.run(username, passwordHash);
-  
-  return {
-    id: info.lastInsertRowid,
-    username
-  };
+  static async getAccessLog(counselorId, limit = 50) {
+    const result = await pool.query(`
+      SELECT 
+        cal.*,
+        s.name as student_name
+      FROM counselor_access_log cal
+      LEFT JOIN students s ON cal.student_id = s.id
+      WHERE cal.counselor_id = $1
+      ORDER BY cal.accessed_at DESC
+      LIMIT $2
+    `, [counselorId, limit]);
+    
+    return result.rows;
+  }
 }
 
-/**
- * Find counselor by username
- * @param {string} username - Username
- * @returns {Object|null} Counselor object with password_hash
- */
-function findCounselorByUsername(username) {
-  const db = getDatabase();
-  
-  const stmt = db.prepare('SELECT * FROM counselors WHERE username = ?');
-  return stmt.get(username);
-}
-
-/**
- * Find counselor by ID
- * @param {number} id - Counselor ID
- * @returns {Object|null} Counselor object
- */
-function findCounselorById(id) {
-  const db = getDatabase();
-  
-  const stmt = db.prepare('SELECT id, username, created_at FROM counselors WHERE id = ?');
-  return stmt.get(id);
-}
-
-/**
- * Log counselor access to student data
- * @param {number} counselorId - Counselor ID
- * @param {number} studentId - Student ID
- * @param {string} action - Action performed (e.g., 'viewed_list', 'viewed_detail')
- */
-function logAccess(counselorId, studentId, action) {
-  const db = getDatabase();
-  
-  const stmt = db.prepare(`
-    INSERT INTO counselor_access_log (counselor_id, student_id, action)
-    VALUES (?, ?, ?)
-  `);
-  
-  stmt.run(counselorId, studentId, action);
-}
-
-/**
- * Get recent access logs for a counselor
- * @param {number} counselorId - Counselor ID
- * @param {number} limit - Number of logs to return
- * @returns {Array} Array of access log entries with student names
- */
-function getRecentAccessLogs(counselorId, limit = 50) {
-  const db = getDatabase();
-  
-  const stmt = db.prepare(`
-    SELECT 
-      l.*,
-      s.name as student_name
-    FROM counselor_access_log l
-    JOIN students s ON l.student_id = s.id
-    WHERE l.counselor_id = ?
-    ORDER BY l.accessed_at DESC
-    LIMIT ?
-  `);
-  
-  return stmt.all(counselorId, limit);
-}
-
-/**
- * Check if counselor exists
- * @returns {boolean} True if at least one counselor exists
- */
-function counselorExists() {
-  const db = getDatabase();
-  
-  const stmt = db.prepare('SELECT COUNT(*) as count FROM counselors');
-  const result = stmt.get();
-  return result.count > 0;
-}
-
-module.exports = {
-  createCounselor,
-  findCounselorByUsername,
-  findCounselorById,
-  logAccess,
-  getRecentAccessLogs,
-  counselorExists
-};
+module.exports = Counselor;

@@ -1,178 +1,79 @@
-/**
- * models/student.js
- * Student data access layer
- * Handles all database operations for students
- */
+const pool = require('../db/connection');
 
-const { getDatabase } = require('../db/connection');
-
-/**
- * Create a new student
- * @param {Object} studentData - { name, email, section, batch, school }
- * @returns {Object} Created student with id
- */
-function createStudent(studentData) {
-  const db = getDatabase();
+class Student {
+  static async create(studentData) {
+    const { name, email, section, batch, school } = studentData;
+    
+    const result = await pool.query(`
+      INSERT INTO students (name, email, section, batch, school)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `, [name, email, section, batch, school]);
+    
+    return result.rows[0];
+  }
   
-  const stmt = db.prepare(`
-    INSERT INTO students (name, email, section, batch, school)
-    VALUES (?, ?, ?, ?, ?)
-  `);
+  static async findById(id) {
+    const result = await pool.query(
+      'SELECT * FROM students WHERE id = $1',
+      [id]
+    );
+    return result.rows[0];
+  }
   
-  const info = stmt.run(
-    studentData.name,
-    studentData.email,
-    studentData.section,
-    studentData.batch,
-    studentData.school || null
-  );
+  static async findByEmail(email) {
+    const result = await pool.query(
+      'SELECT * FROM students WHERE email = $1',
+      [email]
+    );
+    return result.rows[0];
+  }
   
-  return {
-    id: info.lastInsertRowid,
-    ...studentData
-  };
+  static async findAll(filters = {}) {
+    let query = 'SELECT * FROM students';
+    const params = [];
+    const conditions = [];
+    
+    if (filters.section) {
+      conditions.push(`section = $${params.length + 1}`);
+      params.push(filters.section);
+    }
+    
+    if (filters.batch) {
+      conditions.push(`batch = $${params.length + 1}`);
+      params.push(filters.batch);
+    }
+    
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    query += ' ORDER BY created_at DESC';
+    
+    const result = await pool.query(query, params);
+    return result.rows;
+  }
+  
+  static async getWithLatestAssessment() {
+    const result = await pool.query(`
+      SELECT 
+        s.*,
+        a.risk_level,
+        a.self_harm_flagged,
+        a.taken_at as last_assessment
+      FROM students s
+      LEFT JOIN LATERAL (
+        SELECT risk_level, self_harm_flagged, taken_at
+        FROM assessments 
+        WHERE student_id = s.id 
+        ORDER BY taken_at DESC 
+        LIMIT 1
+      ) a ON true
+      ORDER BY s.created_at DESC
+    `);
+    
+    return result.rows;
+  }
 }
 
-/**
- * Find student by ID
- * @param {number} id - Student ID
- * @returns {Object|null} Student object or null
- */
-function findStudentById(id) {
-  const db = getDatabase();
-  
-  const stmt = db.prepare('SELECT * FROM students WHERE id = ?');
-  return stmt.get(id);
-}
-
-/**
- * Find student by email
- * @param {string} email - Student email
- * @returns {Object|null} Student object or null
- */
-function findStudentByEmail(email) {
-  const db = getDatabase();
-  
-  const stmt = db.prepare('SELECT * FROM students WHERE email = ?');
-  return stmt.get(email);
-}
-
-/**
- * Get all students with optional filtering
- * @param {Object} filters - { section, batch, school }
- * @returns {Array} Array of student objects
- */
-function getAllStudents(filters = {}) {
-  const db = getDatabase();
-  
-  let query = 'SELECT * FROM students WHERE 1=1';
-  const params = [];
-  
-  if (filters.section) {
-    query += ' AND section = ?';
-    params.push(filters.section);
-  }
-  
-  if (filters.batch) {
-    query += ' AND batch = ?';
-    params.push(filters.batch);
-  }
-  
-  if (filters.school) {
-    query += ' AND school = ?';
-    params.push(filters.school);
-  }
-  
-  query += ' ORDER BY created_at DESC';
-  
-  const stmt = db.prepare(query);
-  return stmt.all(...params);
-}
-
-/**
- * Get students with their latest assessment
- * @param {Object} filters - { section, batch, school, riskLevel }
- * @returns {Array} Array of students with assessment data
- */
-function getStudentsWithAssessments(filters = {}) {
-  const db = getDatabase();
-  
-  let query = `
-    SELECT 
-      s.*,
-      a.id as assessment_id,
-      a.t_scores,
-      a.risk_level,
-      a.self_harm_flagged,
-      a.taken_at
-    FROM students s
-    LEFT JOIN assessments a ON s.id = a.student_id
-    WHERE 1=1
-  `;
-  const params = [];
-  
-  if (filters.section) {
-    query += ' AND s.section = ?';
-    params.push(filters.section);
-  }
-  
-  if (filters.batch) {
-    query += ' AND s.batch = ?';
-    params.push(filters.batch);
-  }
-  
-  if (filters.school) {
-    query += ' AND s.school = ?';
-    params.push(filters.school);
-  }
-  
-  if (filters.riskLevel) {
-    query += ' AND a.risk_level = ?';
-    params.push(filters.riskLevel);
-  }
-  
-  query += ' ORDER BY a.taken_at DESC, s.created_at DESC';
-  
-  const stmt = db.prepare(query);
-  return stmt.all(...params);
-}
-
-/**
- * Count students by filters
- * @param {Object} filters - { section, batch, school }
- * @returns {number} Count of students
- */
-function countStudents(filters = {}) {
-  const db = getDatabase();
-  
-  let query = 'SELECT COUNT(*) as count FROM students WHERE 1=1';
-  const params = [];
-  
-  if (filters.section) {
-    query += ' AND section = ?';
-    params.push(filters.section);
-  }
-  
-  if (filters.batch) {
-    query += ' AND batch = ?';
-    params.push(filters.batch);
-  }
-  
-  if (filters.school) {
-    query += ' AND school = ?';
-    params.push(filters.school);
-  }
-  
-  const stmt = db.prepare(query);
-  const result = stmt.get(...params);
-  return result.count;
-}
-
-module.exports = {
-  createStudent,
-  findStudentById,
-  findStudentByEmail,
-  getAllStudents,
-  getStudentsWithAssessments,
-  countStudents
-};
+module.exports = Student;
