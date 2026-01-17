@@ -136,3 +136,6 @@ This project uses QUnit for buildless, in-browser testing.
 
 1. Open the `tests/test-runner.html` file in your web browser.
 2. The page will display the test results for the application's scoring logic.
+
+
+
